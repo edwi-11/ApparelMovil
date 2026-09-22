@@ -1,15 +1,15 @@
-
-
 import 'package:flutter/material.dart';
 
 class AppLayout extends StatelessWidget {
-  const AppLayout({super.key});
+  const AppLayout({super.key, required this.child});
 
+final Widget child;
   @override
+  
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Image.asset('assets/images/logo.png', height: 70, width: 70,),
+            title: Image.asset('assets/images/logo.png', height: 120, width: 110,),
             actions: [
                 Padding( padding: const EdgeInsets.only(right: 15),
                 child: Row(
@@ -22,6 +22,8 @@ class AppLayout extends StatelessWidget {
                 ),
             ],
         ),
+
+        body: child,
 
             bottomNavigationBar: BottomNavigationBar(
                 selectedItemColor: const Color.fromARGB(255, 239, 43, 207),
@@ -46,6 +48,8 @@ class AppLayout extends StatelessWidget {
                     ),
                 ],
             ),
+
+
 
         );
 
