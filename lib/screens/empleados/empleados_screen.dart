@@ -22,7 +22,7 @@ child: Column(
       EdgeInsets.only(top:20),
      child: Row( 
         children: [
-       const SizedBox(height: 30,),
+      const SizedBox(height: 30,),
       const SizedBox(width: 310,
       child: SearchBar(
         hintText: ('Buscar Usuario'),
@@ -33,11 +33,24 @@ child: Column(
       IconButton(onPressed: () {}, icon: const Icon(Icons.filter_alt_rounded)),
         ]
       )
-      )
+      ),
+Padding(padding: const 
+      EdgeInsets.only(top:20),
+      child: 
+      SizedBox(
+      width: 380,
+      child: ElevatedButton.icon (onPressed: () {}, icon: Icon(Icons.add),
+      label: const Text('Nuevo usuario',),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color.fromARGB(255, 238, 181, 200),
+        foregroundColor: Colors.black,
+      ),
+
+      ),
+      ),
+),
     ]
   ),
-
-  
     ),
   ],
 
