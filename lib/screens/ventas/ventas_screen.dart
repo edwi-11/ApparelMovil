@@ -28,6 +28,7 @@ class VentasScreen extends StatelessWidget {
                       backgroundColor: Color.fromARGB(255, 196, 119, 148),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      overlayColor: Colors.transparent,
                     ),
                     child: const Text('Todas'),
                     ),
@@ -39,6 +40,7 @@ class VentasScreen extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                       foregroundColor: Colors.black,
                       elevation: 0,
+                      overlayColor: Colors.transparent,
                     ),
                     child: const Text('Hoy'),
                     ),
@@ -50,6 +52,7 @@ class VentasScreen extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                       foregroundColor: Colors.black,
                       elevation: 0,
+                      overlayColor: Colors.transparent,
                     ),
                     child: const Text('Semana'),
                     ),
@@ -61,6 +64,7 @@ class VentasScreen extends StatelessWidget {
                       backgroundColor: Colors.transparent,
                       foregroundColor: Colors.black,
                       elevation: 0,
+                      overlayColor: Colors.transparent,
                     ),
                     child: const Text('Mes'),
                     ),
@@ -73,10 +77,11 @@ class VentasScreen extends StatelessWidget {
               EdgeInsets.only(top:20),
               child: Row( 
                  children: [
-                const SizedBox(width: 310,
+                Expanded(
                 child: SearchBar(
-                  hintText: ('Buscar venta'),
-                  leading:  Icon (Icons.search)
+                  hintText: ('Buscar ventas'),
+                  leading:  Icon (Icons.search),
+                  enabled: false,
                   ),
                 ),
                  const SizedBox(width: 10,),
@@ -84,6 +89,51 @@ class VentasScreen extends StatelessWidget {
                   ]
                 )
                 ),
+
+              Padding(
+                padding: const EdgeInsets.only(top:20),
+                child: SizedBox(
+                  width: 370,
+                  height:70,
+                  child: ElevatedButton(onPressed: () {}, 
+                  style: ElevatedButton.styleFrom(
+                    overlayColor: Colors.transparent,
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.receipt_long, size: 40, color:(Color.fromARGB(255, 245, 120, 162)),),
+
+                      const SizedBox(width: 15,),
+
+                      const Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text ('#000124', style: TextStyle(color:(Colors.black), fontWeight: FontWeight.bold),),
+                          Text ('10 Sep 2025 - 3:42 p.m.', style: TextStyle(color:(Colors.black)),),
+                        ],
+                      ),
+
+                      const Spacer(),
+
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('C\$ 1,250', style: TextStyle(color:(Colors.black), fontWeight: FontWeight.bold),),
+                          Text('Completada', style: TextStyle(color: (Colors.green))),
+                        ],
+                      ),
+
+                      const SizedBox(width: 10,),                 
+                      const Icon(Icons.chevron_right)
+
+                    ],
+                  ),
+                  
+                )
+                
+                ),
+              ),
 
             ]
           )
