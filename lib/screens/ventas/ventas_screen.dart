@@ -82,31 +82,33 @@ class VentasScreen extends StatelessWidget {
 
               Padding(padding: const 
               EdgeInsets.only(top:20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 70,
-                child: SearchBar(
-                  hintText: ('Buscar venta'),
-                  leading:  Icon (Icons.search),
-                  enabled: false,
-                  constraints: const BoxConstraints(minHeight: 70),
-                  trailing: [
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.filter_alt_rounded)),
-                  ],
+              child: Row( 
+                 children: [
+                Expanded(
+                child: SizedBox(
+                  height: 70,
+                  child: SearchBar(
+                    hintText: ('Buscar venta'),
+                    leading:  Icon (Icons.search),
+                    enabled: false,
+                    constraints: const BoxConstraints(minHeight: 70),
+                    ),
                   ),
                 ),
+                 const SizedBox(width: 10,),
+                IconButton(onPressed: () {}, icon: const Icon(Icons.filter_alt_rounded)),
+                  ]
+                )
                 ),
 
               Padding(
                 padding: const EdgeInsets.only(top:20),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height:70,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Color.fromARGB(255, 238, 181, 200)),
+                  child: ElevatedButton(onPressed: () {}, 
+                  style: ElevatedButton.styleFrom(
+                    overlayColor: Colors.transparent,
                   ),
                   child: Row(
                     children: [
@@ -133,19 +135,18 @@ class VentasScreen extends StatelessWidget {
                       const Icon(Icons.chevron_right)
                     ],
                   ),
+                )
                 ),
               ),
 
               Padding(
                 padding: const EdgeInsets.only(top:20),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height:70,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Color.fromARGB(255, 238, 181, 200)),
+                  child: ElevatedButton(onPressed: () {}, 
+                  style: ElevatedButton.styleFrom(
+                    overlayColor: Colors.transparent,
                   ),
                   child: Row(
                     children: [
@@ -172,19 +173,18 @@ class VentasScreen extends StatelessWidget {
                       const Icon(Icons.chevron_right)
                     ],
                   ),
+                )
                 ),
               ),
 
               Padding(
                 padding: const EdgeInsets.only(top:20),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height:70,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Color.fromARGB(255, 238, 181, 200)),
+                  child: ElevatedButton(onPressed: () {}, 
+                  style: ElevatedButton.styleFrom(
+                    overlayColor: Colors.transparent,
                   ),
                   child: Row(
                     children: [
@@ -211,19 +211,18 @@ class VentasScreen extends StatelessWidget {
                       const Icon(Icons.chevron_right)
                     ],
                   ),
+                )
                 ),
               ),
 
               Padding(
                 padding: const EdgeInsets.only(top:20),
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   height:70,
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Color.fromARGB(255, 238, 181, 200)),
+                  child: ElevatedButton(onPressed: () {}, 
+                  style: ElevatedButton.styleFrom(
+                    overlayColor: Colors.transparent,
                   ),
                   child: Row(
                     children: [
@@ -250,6 +249,7 @@ class VentasScreen extends StatelessWidget {
                       const Icon(Icons.chevron_right)
                     ],
                   ),
+                )
                 ),
               ),
 
