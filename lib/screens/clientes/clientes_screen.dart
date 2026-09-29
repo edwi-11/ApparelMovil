@@ -86,6 +86,142 @@ class ClientesScreen extends StatelessWidget {
                   ),
                 ),
 
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: SizedBox(
+                    width: 370,
+                    height: 70,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.account_circle,
+                            size: 40,
+                            color: Color.fromARGB(255, 245, 120, 162),
+                          ),
+                          const SizedBox(width: 15),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Andrea López', style: TextStyle(color: Colors.black),),
+                              Text('N° 002', style: TextStyle(color: Colors.black),),
+                              Text('+505 8888 5678', style: TextStyle(color: Colors.black),),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Text('Activo', style: TextStyle(color: Colors.green)),
+                          const Spacer(),
+                          const Icon(Icons.chevron_right)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: SizedBox(
+                    width: 370,
+                    height: 70,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.account_circle,
+                            size: 40,
+                            color: Color.fromARGB(255, 245, 120, 162),
+                          ),
+                          const SizedBox(width: 15),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Valeria Ruiz', style: TextStyle(color: Colors.black),),
+                              Text('N° 003', style: TextStyle(color: Colors.black),),
+                              Text('+505 8888 9012', style: TextStyle(color: Colors.black),),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Text('Activo', style: TextStyle(color: Colors.green)),
+                          const Spacer(),
+                          const Icon(Icons.chevron_right)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: SizedBox(
+                    width: 370,
+                    height: 70,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.account_circle,
+                            size: 40,
+                            color: Color.fromARGB(255, 245, 120, 162),
+                          ),
+                          const SizedBox(width: 15),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Daniela Torres', style: TextStyle(color: Colors.black),),
+                              Text('N° 004', style: TextStyle(color: Colors.black),),
+                              Text('+505 8888 3456', style: TextStyle(color: Colors.black),),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Text('Activo', style: TextStyle(color: Colors.green)),
+                          const Spacer(),
+                          const Icon(Icons.chevron_right)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: SizedBox(
+                    width: 370,
+                    height: 70,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.account_circle,
+                            size: 40,
+                            color: Color.fromARGB(255, 245, 120, 162),
+                          ),
+                          const SizedBox(width: 15),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Sofía Hernández', style: TextStyle(color: Colors.black),),
+                              Text('N° 005', style: TextStyle(color: Colors.black),),
+                              Text('+505 8888 7890', style: TextStyle(color: Colors.black),),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Text('Activo', style: TextStyle(color: Colors.green)),
+                          const Spacer(),
+                          const Icon(Icons.chevron_right)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
               ]
             )
           )
