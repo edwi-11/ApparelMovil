@@ -35,19 +35,16 @@ class LoginScreen extends StatelessWidget {
             ),
 
             SizedBox(height: 20,),
-            ElevatedButton(onPressed: () {}, 
+            ElevatedButton(onPressed: () {Navigator.pushReplacementNamed(context, '/dashboard');}, 
             style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFB85F83),
             foregroundColor: Colors.white,
             minimumSize: Size (300,50)
             ),
             child: 
             Text('Iniciar Sesion',)
-           
-            
             )
-            
           ]
-        
+          
         ),
       ),
     );

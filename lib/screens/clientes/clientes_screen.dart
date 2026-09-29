@@ -1,52 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ClientesScreen extends StatefulWidget {
-  const ClientesScreen({super.key});
-
-  @override
-  State<ClientesScreen> createState() => _ClientesScreenState();
-}
-
-class _ClientesScreenState extends State<ClientesScreen> {
-  final TextEditingController buscarController =
-      TextEditingController();
-
-  final List<Map<String, String>> clientes = [
-    {
-      'nombre': 'Leyani Chavez',
-      'numero': '001',
-      'telefono': '86259938',
-      'estado': 'activo',
-    },
-    {
-      'nombre': 'Edwin Calero',
-      'numero': '002',
-      'telefono': '86259938',
-      'estado': 'inactivo',
-    },
-    {
-      'nombre': 'Diego Calero',
-      'numero': '003',
-      'telefono': '86259938',
-      'estado': 'inactivo',
-    }
-  ];
-
-  List<Map<String, String>> get clientesFiltrados {
-    final texto = buscarController.text.toLowerCase();
-
-    if (texto.isEmpty) {
-      return clientes;
-    }
-
-    return clientes.where((cliente) {
-      return cliente['nombre']!
-              .toLowerCase()
-              .contains(texto) ||
-          cliente['numero']!.contains(texto) ||
-          cliente['telefono']!.contains(texto);
-    }).toList();
-  }
+class MyWidget extends StatelessWidget {
+  const MyWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
