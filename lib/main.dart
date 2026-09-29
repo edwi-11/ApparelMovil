@@ -1,13 +1,15 @@
+﻿import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:apparel_movil/layouts/app_layout.dart';
-import 'package:apparel_movil/screens/clientes/clientes_screen.dart';
+import 'package:apparel_movil/screens/empleados/empleados_screen.dart';
 
 void main() {
   runApp(
-    const MaterialApp(
+     MaterialApp(
       debugShowCheckedModeBanner: false,
       home: AppLayout(
-      child : ClientesScreen()
+      child : EmpleadosScreen()
       ),
     ),
   );
