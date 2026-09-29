@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AppLayout extends StatelessWidget {
-  const AppLayout({super.key, required this.child});
-
+  
 final Widget child;
+final int currentIndex;
+
+const AppLayout({super.key, required this.child, this.currentIndex=0,});
+
   @override
   
   Widget build(BuildContext context) {
@@ -26,10 +29,32 @@ final Widget child;
         body: child,
 
             bottomNavigationBar: BottomNavigationBar(
-                selectedItemColor: const Color.fromARGB(255, 239, 43, 207),
+                currentIndex: currentIndex,
+                selectedItemColor: const Color (0xFFB85F83),
                 unselectedItemColor: Colors.grey,
                 type: BottomNavigationBarType.fixed,
-                currentIndex: 0,
+                
+
+               onTap: (index){
+                if (index==0) {
+                  Navigator.pushReplacementNamed(context, '/dashboard');
+                }
+
+                 if (index==1) {
+                  Navigator.pushReplacementNamed(context, '/clientes');
+                }
+
+                 if (index==2) {
+                  Navigator.pushReplacementNamed(context, '/empleados');
+                }
+
+                 if (index==3) {
+                  Navigator.pushReplacementNamed(context, '/ventas');
+                }
+               },
+
+
+
                 items: const [
                     BottomNavigationBarItem(icon: Icon(Icons.home),
                     label: 'Inicio',
