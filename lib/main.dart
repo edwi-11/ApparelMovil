@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
-import 'layouts/app_layout.dart';
-import 'screens/empleados/empleados_screen.dart';
+﻿import 'package:flutter/material.dart';
+import 'screens/login/login_screen.dart';
 
 void main() {
   runApp(
     const MaterialApp(
-      home: AppLayout(
-        child: EmpleadosScreen(),
-      )
+      debugShowCheckedModeBanner: false,
+      home: LoginScreen(),
     ),
   );
 }
