@@ -36,6 +36,22 @@ class ClientesScreen extends StatelessWidget {
                   ),
                 ),
 
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: SizedBox(
+                    width: 380,
+                    child: ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: const Icon(Icons.add),
+                      label: const Text('Nuevo cliente'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 238, 181, 200),
+                        foregroundColor: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+
               ]
             )
           )
