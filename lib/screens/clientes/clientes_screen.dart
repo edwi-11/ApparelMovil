@@ -52,6 +52,40 @@ class ClientesScreen extends StatelessWidget {
                   ),
                 ),
 
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: SizedBox(
+                    width: 370,
+                    height: 70,
+                    child: ElevatedButton(
+                      onPressed: () {},
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.account_circle,
+                            size: 40,
+                            color: Color.fromARGB(255, 245, 120, 162),
+                          ),
+                          const SizedBox(width: 15),
+                          const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('María González', style: TextStyle(color: Colors.black),),
+                              Text('N° 001', style: TextStyle(color: Colors.black),),
+                              Text('+505 8888 1234', style: TextStyle(color: Colors.black),),
+                            ],
+                          ),
+                          const Spacer(),
+                          const Text('Activo', style: TextStyle(color: Colors.green)),
+                          const Spacer(),
+                          const Icon(Icons.chevron_right)
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
               ]
             )
           )
