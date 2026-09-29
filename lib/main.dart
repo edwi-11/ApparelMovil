@@ -19,7 +19,7 @@ void main() {
 
 '/clientes': (context) => const AppLayout(
   currentIndex: 1,
-  child: ClientesScreen(),
+  child: MyWidget(),
 ),
 
 '/dashboard': (context) => const AppLayout(
