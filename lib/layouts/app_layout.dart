@@ -53,7 +53,7 @@ const AppLayout({super.key, required this.child, this.currentIndex=0,});
                 }
 
                 if (index==4) {
-                  Navigator.pushReplacementNamed(context, routeName)
+                  Navigator.pushReplacementNamed(context, '/logs');
                 }
                },
 
