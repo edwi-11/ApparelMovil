@@ -53,7 +53,7 @@ const AppLayout({super.key, required this.child, this.currentIndex=0,});
                 }
 
                 if (index==4) {
-                  Navigator.pushReplacementNamed(context, routeName)
+                  Navigator.pushReplacementNamed(context, '/logs');
                 }
                },
 
@@ -76,7 +76,11 @@ const AppLayout({super.key, required this.child, this.currentIndex=0,});
                     label: 'Ventas'
                     ),
 
-                    BottomNavigationBarItem(icon: Icon(Icons.description))
+                    BottomNavigationBarItem(icon: Icon(Icons.description),
+                    label: 'Logs',
+                    ),
+                    
+                    
                 ],
             ),
 
