@@ -1,6 +1,4 @@
-import 'dart:math';
-
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'screens/login/login_screen.dart';
 import 'screens/clientes/clientes_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
@@ -8,6 +6,8 @@ import 'screens/productos/productos_screen.dart';
 import 'screens/ventas/ventas_screen.dart';
 import 'screens/empleados/empleados_screen.dart';
 import 'layouts/app_layout.dart';
+import 'screens/logs/logs_screen.dart';
+import 'screens/configuracion/configuracion_screen.dart';
 
 void main() {
   runApp(
@@ -40,6 +40,15 @@ void main() {
   currentIndex: 2,
   child: EmpleadosScreen(),
 ),
+
+'/logs': (context) => const AppLayout(
+  currentIndex: 4,
+  child: LogsScreen(),
+  ),
+
+'/config': (context) => const AppLayout(
+  child: ConfiguracionScreen(),
+  ),
 
 
 
