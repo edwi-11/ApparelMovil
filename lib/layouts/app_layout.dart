@@ -76,7 +76,11 @@ const AppLayout({super.key, required this.child, this.currentIndex=0,});
                     label: 'Ventas'
                     ),
 
-                    BottomNavigationBarItem(icon: Icon(Icons.description))
+                    BottomNavigationBarItem(icon: Icon(Icons.description),
+                    label: 'Logs',
+                    ),
+                    
+                    
                 ],
             ),
 
