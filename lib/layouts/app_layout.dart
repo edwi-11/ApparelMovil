@@ -51,6 +51,10 @@ const AppLayout({super.key, required this.child, this.currentIndex=0,});
                  if (index==3) {
                   Navigator.pushReplacementNamed(context, '/ventas');
                 }
+
+                if (index==4) {
+                  Navigator.pushReplacementNamed(context, routeName)
+                }
                },
 
 
@@ -71,6 +75,8 @@ const AppLayout({super.key, required this.child, this.currentIndex=0,});
                     BottomNavigationBarItem(icon: Icon(Icons.analytics),
                     label: 'Ventas'
                     ),
+
+                    BottomNavigationBarItem(icon: Icon(Icons.description))
                 ],
             ),
 
