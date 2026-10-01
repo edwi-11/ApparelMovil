@@ -17,9 +17,22 @@ const AppLayout({super.key, required this.child, this.currentIndex=0,});
                 Padding( padding: const EdgeInsets.only(right: 15),
                 child: Row(
                 children: [ 
-                    Icon (Icons.account_circle, color: Color(0xFFC47784), size:50 ),
+                Icon (Icons.account_circle, color: Color(0xFFC47784), size:50 ),
 
-                Icon(Icons.keyboard_arrow_down )
+                PopupMenuButton(
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'config',
+                      child: Text('Configuración'),
+                       ),
+                  ],
+                  onSelected: (value) {
+                  if (value == 'config') {
+                 Navigator.pushReplacementNamed(context, '/config');
+               }
+                  }
+                  )
                 ],
                 ),
                 ),
