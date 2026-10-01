@@ -105,7 +105,13 @@ class VentasScreen extends StatelessWidget {
                     width: 370,
                     height: 70,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => _mostrarDetalleVenta(
+                        context,
+                        id: '#000124',
+                        fecha: '10 Sep 2025 - 3:42 p.m.',
+                        monto: 'C\$ 1,250',
+                        estado: 'Completada',
+                      ),
                       child: Row(
                         children: [
                           const Icon(
@@ -145,7 +151,13 @@ class VentasScreen extends StatelessWidget {
                     width: 370,
                     height: 70,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => _mostrarDetalleVenta(
+                        context,
+                        id: '#000123',
+                        fecha: '10 Sep 2025 - 2:37 p.m.',
+                        monto: 'C\$ 890',
+                        estado: 'Completada',
+                      ),
                       child: Row(
                         children: [
                           const Icon(
@@ -185,7 +197,13 @@ class VentasScreen extends StatelessWidget {
                     width: 370,
                     height: 70,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => _mostrarDetalleVenta(
+                        context,
+                        id: '#000122',
+                        fecha: '10 Sep 2025 - 1:15 p.m.',
+                        monto: 'C\$ 2,450',
+                        estado: 'Completada',
+                      ),
                       child: Row(
                         children: [
                           const Icon(
@@ -225,7 +243,13 @@ class VentasScreen extends StatelessWidget {
                     width: 370,
                     height: 70,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => _mostrarDetalleVenta(
+                        context,
+                        id: '#000121',
+                        fecha: '10 Sep 2025 - 11:03 a.m.',
+                        monto: 'C\$ 980',
+                        estado: 'Completada',
+                      ),
                       child: Row(
                         children: [
                           const Icon(
@@ -262,6 +286,72 @@ class VentasScreen extends StatelessWidget {
               ]
             )
           )
+        ],
+      ),
+    );
+  }
+
+  void _mostrarDetalleVenta(
+    BuildContext context, {
+    required String id,
+    required String fecha,
+    required String monto,
+    required String estado,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.receipt_long,
+                    size: 40,
+                    color: Color.fromARGB(255, 245, 120, 162),
+                  ),
+                  const SizedBox(width: 15),
+                  Text('Venta $id', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _filaDetalle('Fecha', fecha),
+              _filaDetalle('Estado', estado),
+              _filaDetalle('Total', monto),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 196, 119, 148),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Cerrar'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _filaDetalle(String titulo, String valor) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(titulo, style: const TextStyle(color: Colors.black54)),
+          Text(valor, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
