@@ -1,60 +1,16 @@
 ﻿import 'package:flutter/material.dart';
-import 'ui/screens/login/login_screen.dart';
-import 'ui/screens/clientes/clientes_screen.dart';
-import 'ui/screens/dashboard/dashboard_screen.dart';
-import 'ui/screens/productos/productos_screen.dart';
-import 'ui/screens/ventas/ventas_screen.dart';
-import 'ui/screens/empleados/empleados_screen.dart';
-import 'ui/layouts/app_layout.dart';
-import 'ui/screens/logs/logs_screen.dart';
-import 'ui/screens/configuracion/configuracion_screen.dart';
+import '/ui/routes/app_routes.dart';
 
 void main() {
   runApp(
      MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      
       initialRoute: '/login',
-      routes: {
-       '/login': (context) => const LoginScreen(),
 
-'/clientes': (context) => const AppLayout(
-  currentIndex: 1,
-  child: ClientesScreen(),
-),
-
-'/dashboard': (context) => const AppLayout(
-  currentIndex: 0,
-  child: DashboardScreen(),
-),
-
-'/productos': (context) => const AppLayout(
-  child: ProductosScreen(),
-),
-
-'/ventas': (context) => const AppLayout(
-  currentIndex: 3,
-  child: VentasScreen(),
-),
-
-'/empleados': (context) => const AppLayout(
-  currentIndex: 2,
-  child: EmpleadosScreen(),
-),
-
-'/logs': (context) => const AppLayout(
-  currentIndex: 4,
-  child: LogsScreen(),
-  ),
-
-'/config': (context) => const AppLayout(
-  child: ConfiguracionScreen(),
-  ),
+      routes: appRoutes,
 
 
-
-      },
     ),
   );
 }
