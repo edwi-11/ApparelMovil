@@ -11,9 +11,15 @@ class VentasRepository {
   Future<List<VentaModel>> listAsync() async {
     final json = await _apiClient.get(ApiConstants.ventas);
 
-    if (json is! List) throw ParsingException();
+    if (json is! Map<String, dynamic>) throw ParsingException();
+    if (json['success'] != true) {
+      throw ServerException('No se pudieron obtener las ventas.');
+    }
 
-    return json
+    final data = json['data'];
+    if (data is! List) throw ParsingException();
+
+    return data
         .map((e) => VentaModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
