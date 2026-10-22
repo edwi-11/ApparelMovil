@@ -55,6 +55,8 @@ class ApiClient {
       throw const UnauthorizedException();
     }
 
+    if (response.statusCode == 404) throw const NotFoundException();
+
     return _decode(response);
   }
 

@@ -29,3 +29,8 @@ class UnauthorizedException extends AppException {
   const UnauthorizedException(
       [super.message = 'Tu sesión expiró. Inicia sesión de nuevo.']);
 }
+
+/// El recurso solicitado no existe (404).
+class NotFoundException extends AppException {
+  const NotFoundException([super.message = 'No se encontró el recurso solicitado.']);
+}
