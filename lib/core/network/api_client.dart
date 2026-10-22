@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
+import '../errors/app_exception.dart';
 
 class ApiClient {
   final http.Client _client = http.Client();
@@ -43,10 +45,32 @@ class ApiClient {
           .send(request)
           .timeout(ApiConstants.timeoutDuration)
           .then(http.Response.fromStream);
-    } catch (e) {
-      throw Exception('Failed to send request: $e');
+    } on TimeoutException {
+      throw const NetworkException('Tiempo de espera agotado. Intenta de nuevo.');
+    } on http.ClientException {
+      throw const NetworkException();
     }
 
-    return response;
+    if (response.statusCode == 401) {
+      throw const UnauthorizedException();
+    }
+
+    return _decode(response);
   }
+
+  dynamic _decode(http.Response response) {
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ServerException('La petición falló', statusCode: response.statusCode);
+    }
+
+    if (response.body.isEmpty) return null;
+
+    try {
+      return jsonDecode(response.body);
+    } on FormatException {
+      throw const ParsingException();
+    }
+  }
+
+  void dispose() => _client.close();
 }
