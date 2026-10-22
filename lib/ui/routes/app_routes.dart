@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import '../../presentation/screens/login/login_screen.dart';
-import '../../presentation/screens/clientes/clientes_screen.dart';
-import '../../presentation/screens/dashboard/dashboard_screen.dart';
-import '../../presentation/screens/productos/productos_screen.dart';
-import '../../presentation/screens/ventas/ventas_screen.dart';
-import '../../presentation/screens/empleados/empleados_screen.dart';
-import '/ui/layouts/app_layout.dart';
-import '../../presentation/screens/logs/logs_screen.dart';
-import '../../presentation/screens/configuracion/configuracion_screen.dart';
+
+import 'package:apparel_movil/presentation/screens/login/login_screen.dart';
+import 'package:apparel_movil/presentation/screens/clientes/clientes_screen.dart';
+import 'package:apparel_movil/presentation/screens/dashboard/dashboard_screen.dart';
+import 'package:apparel_movil/presentation/screens/productos/productos_screen.dart';
+import 'package:apparel_movil/presentation/screens/ventas/ventas_screen.dart';
+import 'package:apparel_movil/presentation/screens/empleados/empleados_screen.dart';
+import 'package:apparel_movil/ui/layouts/app_layout.dart'; 
+import 'package:apparel_movil/presentation/screens/logs/logs_screen.dart';
+import 'package:apparel_movil/presentation/screens/configuracion/configuracion_screen.dart';
+
 
 final Map<String, WidgetBuilder> appRoutes = {
   '/login': (context) => const LoginScreen(),
