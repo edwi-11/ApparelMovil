@@ -2,32 +2,63 @@ trigger:
   - main
 
 pool:
-  vmImage: 'windows-2022'
-
-variables:
-  proyecto: '**/*.csproj'
-  buildConfiguration: 'Release'
-  dotnetVersion: '10.0.x'
+  vmImage: 'ubuntu-latest'
 
 stages:
-# 1. ETAPA DE COMPILACIÓN (CI)
+# 1. COMPILACIÓN
 - stage: Build
-  displayName: 'Compilación y Publicación'
+  displayName: 'Compilación Flutter Web'
   jobs:
   - job: BuildJob
     steps:
-    - task: UseDotNet@2
-      inputs:
-        packageType: 'sdk'
-        version: '$(dotnetVersion)'
+    - script: |
+        git clone https://github.com/flutter/flutter.git -b stable --depth 1 $(Agent.TempDirectory)/flutter
+        echo "##vso[task.prependpath]$(Agent.TempDirectory)/flutter/bin"
+      displayName: 'Instalar Flutter'
 
-    - task: DotNetCoreCLI@2
+    - script: |
+        flutter --version
+        flutter config --enable-web
+        flutter pub get
+        flutter build web --release
+      displayName: 'Compilar Flutter Web'
+      # Si tu pubspec.yaml no está en la raíz, agrega:
+      # workingDirectory: 'NOMBRE_DE_LA_CARPETA'
+
+    # Necesario para que las rutas de la SPA funcionen en IIS (App Service Windows)
+    - script: |
+        cat > build/web/web.config << 'EOF'
+        <?xml version="1.0" encoding="UTF-8"?>
+        <configuration>
+          <system.webServer>
+            <rewrite>
+              <rules>
+                <rule name="Flutter SPA" stopProcessing="true">
+                  <match url=".*" />
+                  <conditions logicalGrouping="MatchAll">
+                    <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />
+                    <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />
+                  </conditions>
+                  <action type="Rewrite" url="/index.html" />
+                </rule>
+              </rules>
+            </rewrite>
+            <staticContent>
+              <remove fileExtension=".wasm" />
+              <mimeMap fileExtension=".wasm" mimeType="application/wasm" />
+            </staticContent>
+          </system.webServer>
+        </configuration>
+        EOF
+      displayName: 'Agregar web.config'
+
+    - task: ArchiveFiles@2
       inputs:
-        command: 'publish'
-        publishWebProjects: true
-        projects: '$(proyecto)'
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-        zipAfterPublish: true
+        rootFolderOrFile: 'build/web'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+        replaceExistingArchive: true
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -35,7 +66,7 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-# 2. ETAPA DE DESPLIEGUE (CD)
+# 2. DESPLIEGUE
 - stage: Deploy
   displayName: 'Despliegue a Azure App Service'
   dependsOn: Build
@@ -55,4 +86,4 @@ stages:
         azureSubscription: 'ApparelMovil-Connection'
         appType: 'webApp'
         appName: 'ApparelMovil-Front'
-        package: '$(System.ArtifactsDirectory)/drop/*.zip'
+        package: '$(System.ArtifactsDirectory)/drop/app.zip'
