@@ -2,7 +2,7 @@ trigger:
   - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  vmImage: 'ubuntu-24.04'
 
 stages:
 # 1. COMPILACIÓN
@@ -17,15 +17,16 @@ stages:
       displayName: 'Instalar Flutter'
 
     - script: |
+        echo "API_URL=https://apparelmovilapi-dgdpgjc5gafxfyfp.canadacentral-01.azurewebsites.net" > .env
+      displayName: 'Crear archivo .env'
+
+    - script: |
         flutter --version
         flutter config --enable-web
         flutter pub get
         flutter build web --release
       displayName: 'Compilar Flutter Web'
-      # Si tu pubspec.yaml no está en la raíz, agrega:
-      # workingDirectory: 'NOMBRE_DE_LA_CARPETA'
 
-    # Necesario para que las rutas de la SPA funcionen en IIS (App Service Windows)
     - script: |
         cat > build/web/web.config << 'EOF'
         <?xml version="1.0" encoding="UTF-8"?>
@@ -81,9 +82,4 @@ stages:
         artifactName: 'drop'
         downloadPath: '$(System.ArtifactsDirectory)'
 
-    - task: AzureWebApp@1
-      inputs:
-        azureSubscription: 'ApparelMovil-Connection'
-        appType: 'webApp'
-        appName: 'ApparelMovil-Front'
-        package: '$(System.ArtifactsDirectory)/drop/app.zip'
+    - task:
