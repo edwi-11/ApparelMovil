@@ -1,0 +1,94 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'windows-2022'
+
+variables:
+  BASE_API_URL: 'https://apparelmovilapi-dgdpgjc5gafxfyfp.canadacentral-01.azurewebsites.net'
+  WEB_URL: 'https://apparelmovil-front-bdgdaudrg2hgh5h6.canadacentral-01.azurewebsites.net'
+  PUB_CACHE: 'D:\pub-cache'
+
+steps:
+- script: |
+    git clone https://github.com/flutter/flutter.git -b stable --depth 1 "$(Agent.TempDirectory)\flutter"
+    echo ##vso[task.prependpath]$(Agent.TempDirectory)\flutter\bin
+  displayName: 'Instalar Flutter'
+  retryCountOnTaskFailure: 2
+
+- script: flutter --version
+  displayName: 'Versión de Flutter'
+
+- script: flutter precache --android --web
+  displayName: 'Precache Flutter'
+  retryCountOnTaskFailure: 2
+
+- script: |
+    echo BASE_API_URL=$(BASE_API_URL)> .env
+  displayName: 'Crear .env'
+
+- script: flutter pub get
+  displayName: 'Dependencias'
+  retryCountOnTaskFailure: 2
+
+- script: flutter build web --release --base-href "/"
+  displayName: 'Compilar Flutter web'
+  retryCountOnTaskFailure: 2
+
+- script: copy /Y web\web.config build\web\web.config
+  displayName: 'Copiar web.config'
+
+- task: DownloadSecureFile@1
+  name: keystore
+  displayName: 'Descargar keystore'
+  inputs:
+    secureFile: 'upload-keystore.jks'
+
+- powershell: |
+    $store = $env:KS_FILE.Replace('\','/')
+    Set-Content -Path android\key.properties -Value @(
+      "storePassword=$env:KS_PASS",
+      "keyPassword=$env:KEY_PASS",
+      "keyAlias=$env:KEY_ALIAS_VAR",
+      "storeFile=$store"
+    )
+  displayName: 'Crear key.properties'
+  env:
+    KS_FILE: $(keystore.secureFilePath)
+    KS_PASS: $(KEYSTORE_PASSWORD)
+    KEY_PASS: $(KEY_PASSWORD)
+    KEY_ALIAS_VAR: $(KEY_ALIAS)
+
+- powershell: |
+    Add-Content -Path android\gradle.properties -Value "`nkotlin.incremental=false"
+  displayName: 'Desactivar Kotlin incremental'
+
+- task: JavaToolInstaller@0
+  displayName: 'Usar Java 17'
+  inputs:
+    versionSpec: '17'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
+- script: flutter build apk --release --build-number=$(Build.BuildId) --build-name=1.0.$(Build.BuildId)
+  displayName: 'Compilar APK'
+  retryCountOnTaskFailure: 1
+
+- script: |
+    mkdir build\web\downloads
+    copy /Y build\app\outputs\flutter-apk\app-release.apk build\web\downloads\app.apk
+    echo {"versionCode": $(Build.BuildId), "apkUrl": "$(WEB_URL)/downloads/app.apk"}> build\web\downloads\version.json
+  displayName: 'Publicar APK y version.json'
+
+- script: |
+    dir build\web
+    dir build\web\downloads
+  displayName: 'Verificar contenido del build'
+
+- task: AzureWebApp@1
+  displayName: 'Desplegar a App Service'
+  inputs:
+    azureSubscription: 'ApparelMovil-Connection'
+    appType: 'webApp'
+    appName: 'ApparelMovil-Front'
+    package: '$(System.DefaultWorkingDirectory)/build/web'
