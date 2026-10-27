@@ -6,6 +6,7 @@ pool:
 
 variables:
   BASE_API_URL: 'https://apparelmovilapi-dgdpgjc5gafxfyfp.canadacentral-01.azurewebsites.net'
+  WEB_URL: 'https://apparelmovil-front-bdgdaudrg2hgh5h6.canadacentral-01.azurewebsites.net'
 
 steps:
 - script: |
@@ -26,9 +27,42 @@ steps:
 - script: flutter build web --release --base-href "/"
   displayName: 'Compilar Flutter web'
 
+- script: copy /Y web\web.config build\web\web.config
+  displayName: 'Copiar web.config'
+
+- task: DownloadSecureFile@1
+  name: keystore
+  displayName: 'Descargar keystore'
+  inputs:
+    secureFile: 'upload-keystore.jks'
+
+- powershell: |
+    $store = $env:KS_FILE.Replace('\','/')
+    Set-Content -Path android\key.properties -Value @(
+      "storePassword=$env:KS_PASS",
+      "keyPassword=$env:KEY_PASS",
+      "keyAlias=$env:KEY_ALIAS_VAR",
+      "storeFile=$store"
+    )
+  displayName: 'Crear key.properties'
+  env:
+    KS_FILE: $(keystore.secureFilePath)
+    KS_PASS: $(KEYSTORE_PASSWORD)
+    KEY_PASS: $(KEY_PASSWORD)
+    KEY_ALIAS_VAR: $(KEY_ALIAS)
+
+- script: flutter build apk --release --build-number=$(Build.BuildId) --build-name=1.0.$(Build.BuildId)
+  displayName: 'Compilar APK'
+
+- script: |
+    mkdir build\web\downloads
+    copy /Y build\app\outputs\flutter-apk\app-release.apk build\web\downloads\app.apk
+    echo {"versionCode": $(Build.BuildId), "apkUrl": "$(WEB_URL)/downloads/app.apk"}> build\web\downloads\version.json
+  displayName: 'Publicar APK y version.json'
+
 - script: |
     dir build\web
-    dir build\web\assets
+    dir build\web\downloads
   displayName: 'Verificar contenido del build'
 
 - task: AzureWebApp@1
