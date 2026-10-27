@@ -8,7 +8,7 @@ class VentasRepository {
 
   VentasRepository(this._apiClient);
 
-  Future<List<VentaModel>> listAsync() async {
+  Future<List<VentaModel>> search() async {
     final json = await _apiClient.get(ApiConstants.ventas);
 
     if (json is! Map<String, dynamic>) throw ParsingException();
