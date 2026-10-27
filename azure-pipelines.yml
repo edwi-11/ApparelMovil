@@ -13,9 +13,14 @@ steps:
     git clone https://github.com/flutter/flutter.git -b stable --depth 1 "$(Agent.TempDirectory)\flutter"
     echo ##vso[task.prependpath]$(Agent.TempDirectory)\flutter\bin
   displayName: 'Instalar Flutter'
+  retryCountOnTaskFailure: 2
 
 - script: flutter --version
   displayName: 'Versión de Flutter'
+
+- script: flutter precache --android --web
+  displayName: 'Precache Flutter'
+  retryCountOnTaskFailure: 2
 
 - script: |
     echo BASE_API_URL=$(BASE_API_URL)> .env
@@ -23,9 +28,11 @@ steps:
 
 - script: flutter pub get
   displayName: 'Dependencias'
+  retryCountOnTaskFailure: 2
 
 - script: flutter build web --release --base-href "/"
   displayName: 'Compilar Flutter web'
+  retryCountOnTaskFailure: 2
 
 - script: copy /Y web\web.config build\web\web.config
   displayName: 'Copiar web.config'
@@ -60,6 +67,7 @@ steps:
 
 - script: flutter build apk --release --build-number=$(Build.BuildId) --build-name=1.0.$(Build.BuildId)
   displayName: 'Compilar APK'
+  retryCountOnTaskFailure: 2
 
 - script: |
     mkdir build\web\downloads
