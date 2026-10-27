@@ -1,0 +1,62 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-24.04'
+
+stages:
+- stage: Build
+  displayName: 'Compilación Flutter Web'
+  jobs:
+  - job: BuildJob
+    steps:
+    - script: |
+        git clone https://github.com/flutter/flutter.git -b stable --depth 1 $(Agent.TempDirectory)/flutter
+        echo "##vso[task.prependpath]$(Agent.TempDirectory)/flutter/bin"
+      displayName: 'Instalar Flutter'
+
+    - script: |
+        echo "BASE_API_URL=https://apparelmovilapi-dgdpgjc5gafxfyfp.canadacentral-01.azurewebsites.net" > .env
+      displayName: 'Crear archivo .env'
+
+    - script: |
+        flutter --version
+        flutter config --enable-web
+        flutter pub get
+        flutter build web --release
+      displayName: 'Compilar Flutter Web'
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: 'build/web'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+        replaceExistingArchive: true
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: Deploy
+  displayName: 'Despliegue a Azure App Service'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: DeployJob
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'drop'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
+    - task: AzureWebApp@1
+      inputs:
+        azureSubscription: 'ApparelMovil-Connection'
+        appType: 'webApp'
+        appName: 'ApparelMovil-Front'
+        package: '$(System.ArtifactsDirectory)/drop/app.zip'
