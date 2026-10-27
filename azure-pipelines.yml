@@ -51,6 +51,13 @@ steps:
     KEY_PASS: $(KEY_PASSWORD)
     KEY_ALIAS_VAR: $(KEY_ALIAS)
 
+- task: JavaToolInstaller@0
+  displayName: 'Usar Java 17'
+  inputs:
+    versionSpec: '17'
+    jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'PreInstalled'
+
 - script: flutter build apk --release --build-number=$(Build.BuildId) --build-name=1.0.$(Build.BuildId)
   displayName: 'Compilar APK'
 
