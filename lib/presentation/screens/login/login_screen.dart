@@ -27,7 +27,9 @@ class LoginScreen extends StatelessWidget {
             SizedBox(
             width: 370,
             child: 
-            TextField(decoration: InputDecoration(
+            TextField(
+            obscureText: true,
+            decoration: InputDecoration(
             labelText: ('Contraseña'), 
             border: OutlineInputBorder(),
             ),
