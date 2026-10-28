@@ -15,25 +15,23 @@ class ClienteModel {
     required this.cedula,
   });
 
-  factory ClienteModel.fromJson(Map<String, dynamic> json) {
-    return ClienteModel(
-      codCliente: json['codCliente'] ?? 0,
-      numeroCompra: json['numeroCompra'] ?? 0,
-      nombre: json['nombre'] ?? '',
-      apellido: json['apellido'] ?? '',
-      numeroTelefono: json['numeroTelefono'] ?? 0,
-      cedula: json['cedula'] ?? '',
-    );
-  }
+  String get nombreCompleto => '$nombre $apellido';
 
-  Map<String, dynamic> toJson() {
-    return {
-      'codCliente': codCliente,
-      'numeroCompra': numeroCompra,
-      'nombre': nombre,
-      'apellido': apellido,
-      'numeroTelefono': numeroTelefono,
-      'cedula': cedula,
-    };
-  }
+  static ClienteModel fromJson(Map<String, dynamic> json) => ClienteModel(
+        codCliente: json['codCliente'] ?? 0,
+        numeroCompra: json['numeroCompra'] ?? 0,
+        nombre: json['nombre'] ?? '',
+        apellido: json['apellido'] ?? '',
+        numeroTelefono: json['numeroTelefono'] ?? 0,
+        cedula: json['cedula'] ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'codCliente': codCliente,
+        'numeroCompra': numeroCompra,
+        'nombre': nombre,
+        'apellido': apellido,
+        'numeroTelefono': numeroTelefono,
+        'cedula': cedula,
+      };
 }
