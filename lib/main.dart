@@ -1,5 +1,8 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
+import 'package:apparel_movil/core/di/injection.dart';
+import 'package:apparel_movil/presentation/providers/ventas_provider.dart';
 import 'package:apparel_movil/ui/routes/app_routes.dart';
 
 const String _apiUrlPorDefecto =
@@ -18,7 +21,16 @@ Future<void> main() async {
     dotenv.loadFromString(envString: 'BASE_API_URL=$_apiUrlPorDefecto');
   }
 
-  runApp(const ApparelApp());
+  setupDependencies();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => getIt<VentasProvider>()),
+      ],
+      child: const ApparelApp(),
+    ),
+  );
 }
 
 class ApparelApp extends StatelessWidget {
