@@ -1,20 +1,29 @@
+import 'package:apparel_movil/data/repositories/token_repository.dart';
+import 'package:apparel_movil/services/auth_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:apparel_movil/core/network/api_client.dart';
-import 'package:apparel_movil/core/network/session_store.dart';
+//import 'package:apparel_movil/core/network/session_store.dart';
 import 'package:apparel_movil/data/repositories/ventas_repository.dart';
 import 'package:apparel_movil/presentation/providers/ventas_provider.dart';
 import 'package:apparel_movil/services/ventas_service.dart';
+import 'package:apparel_movil/data/repositories/auth_repository.dart';
+
+
 
 final getIt = GetIt.instance;
 
 void setupDependencies() {
-  // Core
-  getIt.registerLazySingleton<SessionStore>(() => SessionStore());
-  getIt.registerLazySingleton<ApiClient>(
-    () => ApiClient(() => getIt<SessionStore>().token),
-  );
 
-  // Ventas
+ getIt.registerLazySingleton<ApiClient>(() => ApiClient(), dispose: (client) => client.dispose());
+
+//register repositories
+ getIt.registerLazySingleton<AuthRepository>(() => AuthRepository(getIt<ApiClient>())); 
+ getIt.registerLazySingleton<TokenRepository>(() => TokenRepository()); 
+
+ //register services
+ getIt.registerLazySingleton<Authservice>(() => Authservice(getIt<AuthRepository>(), getIt<TokenRepository>()));
+
+  // Ventas 
   getIt.registerLazySingleton<VentasRepository>(
     () => VentasRepository(getIt<ApiClient>()),
   );
