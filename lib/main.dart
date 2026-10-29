@@ -1,9 +1,11 @@
-﻿import 'package:flutter/material.dart';
+﻿import 'package:apparel_movil/presentation/providers/auth_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:apparel_movil/core/di/injection.dart';
 import 'package:apparel_movil/presentation/providers/ventas_provider.dart';
 import 'package:apparel_movil/ui/routes/app_routes.dart';
+
 
 const String _apiUrlPorDefecto =
     'https://apparelmovilapi-dgdpgjc5gafxfyfp.canadacentral-01.azurewebsites.net';
@@ -27,6 +29,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => getIt<VentasProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
       ],
       child: const ApparelApp(),
     ),

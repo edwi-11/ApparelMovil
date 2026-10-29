@@ -1,7 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:apparel_movil/presentation/providers/auth_provider.dart';
+import 'package:provider/provider.dart';
 
-class LoginScreen extends StatelessWidget {
+
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+  
+class _LoginScreenState extends State<LoginScreen> {
+
+  final _globalKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+
+  Future <void> _login() async {
+   if (!_globalKey.currentState!.validate()) return; 
+
+   final autg = context.read<AuthProvider>();
+   await autg.login(
+      username: _usernameController.text.trim(),
+      password: _passwordController.text
+    );
+
+    if (!mounted) return;
+    if (autg.isAuthenticated) {
+      Navigator.pushReplacementNamed(context, '/dashboard');
+    } else {
+      final errorMessage = autg.errorMessage ?? 'Error de autenticación';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -9,6 +43,8 @@ class LoginScreen extends StatelessWidget {
       backgroundColor: Color(0xFFF6E8ED),
       body: 
       Center(
+        child: Form(
+          key: _globalKey,  
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -17,8 +53,11 @@ class LoginScreen extends StatelessWidget {
             SizedBox(
             width: 370,
             child: 
-            TextField(decoration: InputDecoration(
+            TextFormField(
+            controller: _usernameController,
+            decoration: InputDecoration(
             labelText: ('Usuario'), 
+            prefixIcon: Icon(Icons.person),
             border: OutlineInputBorder(),
             ),
             )
@@ -27,18 +66,22 @@ class LoginScreen extends StatelessWidget {
             SizedBox(
             width: 370,
             child: 
-            TextField(
+            TextFormField(
+            controller: _passwordController,
             obscureText: true,
             decoration: InputDecoration(
             labelText: ('Contraseña'), 
+            prefixIcon: Icon(Icons.lock),
             border: OutlineInputBorder(),
             ),
             )
             ),
 
             SizedBox(height: 20,),
-            ElevatedButton(onPressed: () {Navigator.pushReplacementNamed(context, '/dashboard');}, 
-            style: ElevatedButton.styleFrom(backgroundColor: Color(0xFFB85F83),
+            FilledButton(
+            onPressed: _login,
+            style: FilledButton.styleFrom(
+            backgroundColor: Color(0xFFB85F83),
             foregroundColor: Colors.white,
             minimumSize: Size (300,50)
             ),
@@ -49,6 +92,7 @@ class LoginScreen extends StatelessWidget {
           
         ),
       ),
+    )
     );
   }
 }
