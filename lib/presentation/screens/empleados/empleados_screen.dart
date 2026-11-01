@@ -1,8 +1,7 @@
-import 'package:apparel_movil/data/models/user_models.dart';
-import 'package:apparel_movil/presentation/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:convert';
+import 'package:apparel_movil/data/models/user_models.dart';
+import 'package:apparel_movil/presentation/providers/user_provider.dart';
 
 class EmpleadosScreen extends StatefulWidget {
   const EmpleadosScreen({super.key});
@@ -12,9 +11,6 @@ class EmpleadosScreen extends StatefulWidget {
 }
 
 class _EmpleadosScreenState extends State<EmpleadosScreen> {
-
-  
-
   @override
   void initState() {
     super.initState();
@@ -23,7 +19,7 @@ class _EmpleadosScreenState extends State<EmpleadosScreen> {
     });
   }
 
-    String _nombreRol(int codRol, String respaldo) {
+  String _nombreRol(int codRol, String respaldo) {
     switch (codRol) {
       case 1:
         return 'Admin';
@@ -34,384 +30,413 @@ class _EmpleadosScreenState extends State<EmpleadosScreen> {
     }
   }
 
-  
-// menu de opciones para cada usuario
-  void _mostrarOpciones(UsuarioModel u) {
-    showModalBottomSheet(
+  Future<void> _abrirFormulario({UsuarioModel? usuario}) async {
+    await showModalBottomSheet<void>(
       context: context,
-      builder: (sheetContext) => Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${u.nombre} ${u.apellidos}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Text('Usuario: ${u.usuarioLogin}'),
-            Text('Cédula: ${u.cedula}'),
-            Text('Rol: ${_nombreRol(u.codRol, u.rolNombre)}'), // CAMBIO ROL
-            Text('Estado: ${u.estado == 1 ? 'Activo' : 'Inactivo'}'),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                // lápiz = editar
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () {
-                    Navigator.pop(sheetContext);
-                    _editar(u);
-                  },
-                ),
-                const SizedBox(width: 8),
-                // botón eliminar
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(sheetContext);
-                    _confirmarEliminar(u);
-                  },
-                  icon: const Icon(Icons.delete),
-                  label: const Text('Eliminar'),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                ),
-              ],
-            ),
-          ],
-        ),
+      isScrollControlled: true,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
+        child: _UsuarioForm(usuario: usuario),
       ),
     );
   }
 
-// Avisa si elimina o no el usuario
   Future<void> _confirmarEliminar(UsuarioModel u) async {
-    final confirmar = await showDialog<bool>(
+    final confirmado = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Eliminar usuario'),
         content: Text('¿Seguro que quieres eliminar a ${u.nombre} ${u.apellidos}?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Cancelar')),
-          FilledButton(
-            onPressed: () => Navigator.pop(dialogContext, true),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Eliminar'),
           ),
         ],
       ),
     );
 
-    if (confirmar != true || !mounted) return;
+    if (confirmado != true || !mounted) return;
 
     final provider = context.read<UsuariosProvider>();
     final ok = await provider.darDeBaja(u.codUsuario);
-    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(ok ? 'Usuario eliminado' : (provider.error ?? 'No se pudo eliminar'))),
-    );
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(provider.error ?? 'No se pudo eliminar')),
+      );
+    }
   }
 
-  //formulario para crear un usuario
-  void _crear() {
-    final nombre = TextEditingController();
-    final apellidos = TextEditingController();
-    final login = TextEditingController();
-    final cedula = TextEditingController();
-    final pass = TextEditingController();
-    int rolSeleccionado = 2;
-
-    showDialog(
+  void _mostrarDetalle(UsuarioModel u) {
+    showModalBottomSheet(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (ctx, setStateDialog) => AlertDialog(
-          title: const Text('Nuevo usuario'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '${u.nombre} ${u.apellidos}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text('Usuario: ${u.usuarioLogin}'),
+            Text('Cédula: ${u.cedula}'),
+            Text('Rol: ${_nombreRol(u.codRol, u.rolNombre)}'),
+            Text('Estado: ${u.estado == 1 ? 'Activo' : 'Inactivo'}'),
+            const SizedBox(height: 16),
+            Row(
               children: [
-                TextField(controller: nombre, decoration: const InputDecoration(labelText: 'Nombre')),
-                TextField(controller: apellidos, decoration: const InputDecoration(labelText: 'Apellidos')),
-                TextField(controller: login, decoration: const InputDecoration(labelText: 'Usuario')),
-                TextField(controller: cedula, decoration: const InputDecoration(labelText: 'Cédula')),
-                TextField(
-                  controller: pass,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _abrirFormulario(usuario: u);
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Editar'),
+                  ),
                 ),
-                DropdownButtonFormField<int>(
-                  value: rolSeleccionado,
-                  decoration: const InputDecoration(labelText: 'Rol'),
-                  items: const [
-                    DropdownMenuItem(value: 1, child: Text('Admin')),
-                    DropdownMenuItem(value: 2, child: Text('Empleado')),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) setStateDialog(() => rolSeleccionado = v);
-                  },
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _confirmarEliminar(u);
+                    },
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Eliminar'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 238, 181, 200),
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
                 ),
               ],
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancelar'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                if (nombre.text.trim().isEmpty ||
-                    login.text.trim().isEmpty ||
-                    pass.text.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Nombre, usuario y contraseña son obligatorios')),
-                  );
-                  return;
-                }
-
-                final nuevo = UsuarioModel(
-                  codUsuario: 0,
-                  nombre: nombre.text.trim(),
-                  apellidos: apellidos.text.trim(),
-                  usuarioLogin: login.text.trim(),
-                  cedula: cedula.text.trim(),
-                  codRol: rolSeleccionado,
-                  rolNombre: _nombreRol(rolSeleccionado, ''),
-                  estado: 1,
-                  contrasena: pass.text,
-                );
-
-                final provider = context.read<UsuariosProvider>();
-                final ok = await provider.crear(nuevo);
-                debugPrint('JSON ENVIADO: ${jsonEncode(nuevo.toJson())}');
-
-                if (dialogContext.mounted && ok) Navigator.pop(dialogContext);
-                if (!mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(ok ? 'Usuario creado' : (provider.error ?? 'No se pudo crear'))),
-                );
-              },
-              child: const Text('Guardar'),
-            ),
           ],
         ),
       ),
     );
   }
 
-  void _editar(UsuarioModel u) {
-  final nombre = TextEditingController(text: u.nombre);
-  final apellidos = TextEditingController(text: u.apellidos);
-  final login = TextEditingController(text: u.usuarioLogin);
-  final cedula = TextEditingController(text: u.cedula);
-  final rol = TextEditingController(text: u.codRol > 0 ? u.codRol.toString() : '');
-  final estado = TextEditingController(text: u.estado > 0 ? u.estado.toString() : '1');
-  final pass = TextEditingController();
+  Widget _tarjeta(UsuarioModel u) {
+    final activo = u.estado == 1;
 
-  showDialog(
-    context: context,
-    builder: (dialogContext) => AlertDialog(
-      title: const Text('Editar usuario'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(controller: nombre, decoration: const InputDecoration(labelText: 'Nombre')),
-            TextField(controller: apellidos, decoration: const InputDecoration(labelText: 'Apellidos')),
-            TextField(controller: login, decoration: const InputDecoration(labelText: 'Usuario')),
-            TextField(controller: cedula, decoration: const InputDecoration(labelText: 'Cédula')),
-            TextField(
-              controller: rol,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Código de rol (mayor a 0)'),
-            ),
-            TextField(
-              controller: estado,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Estado (mayor a 0)'),
-            ),
-            TextField(
-              controller: pass,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Nueva contraseña (opcional)'),
-            ),
-          ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: SizedBox(
+        width: 370,
+        height: 70,
+        child: ElevatedButton(
+          onPressed: () => _mostrarDetalle(u),
+          child: Row(
+            children: [
+              const Icon(
+                Icons.account_circle,
+                size: 40,
+                color: Color.fromARGB(255, 245, 120, 162),
+              ),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${u.nombre} ${u.apellidos}',
+                      style: const TextStyle(color: Colors.black),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      _nombreRol(u.codRol, u.rolNombre),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                activo ? 'Activo' : 'Inactivo',
+                style: TextStyle(color: activo ? Colors.green : Colors.red),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(dialogContext),
-          child: const Text('Cancelar'),
+    );
+  }
+
+  Widget _contenido(UsuariosProvider p) {
+    if (p.cargando) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Center(child: CircularProgressIndicator()),
         ),
-        FilledButton(
-          onPressed: () async {
-            final codRol = int.tryParse(rol.text.trim()) ?? 0;
-            final est = int.tryParse(estado.text.trim()) ?? 0;
+      );
+    }
 
-            if (codRol <= 0 || est <= 0) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('El rol y el estado deben ser mayores a 0')),
-              );
-              return;
-            }
-
-            final actualizado = UsuarioModel(
-              codUsuario: u.codUsuario,
-              nombre: nombre.text.trim(),
-              apellidos: apellidos.text.trim(),
-              usuarioLogin: login.text.trim(),
-              cedula: cedula.text.trim(),
-              codRol: codRol,
-              rolNombre: _nombreRol(codRol, u.rolNombre), // CAMBIO ROL
-              estado: est,
-              contrasena: pass.text.isEmpty ? null : pass.text,
-            );
-
-            final provider = context.read<UsuariosProvider>();
-            final ok = await provider.actualizar(actualizado);
-
-            if (dialogContext.mounted && ok) Navigator.pop(dialogContext);
-            if (!mounted) return;
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(ok ? 'Usuario actualizado' : (provider.error ?? 'No se pudo actualizar'))),
-            );
-          },
-          child: const Text('Guardar'),
+    if (p.error != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            children: [
+              Text(p.error!, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: p.cargar,
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
         ),
-      ],
-    ),
-  );
-}
+      );
+    }
+
+    if (p.usuarios.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Center(child: Text('No hay usuarios para mostrar.')),
+        ),
+      );
+    }
+
+    return Column(
+      children: p.usuarios.map(_tarjeta).toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<UsuariosProvider>();
+    final p = context.watch<UsuariosProvider>();
 
-      return SingleChildScrollView(
-child: Column(
-
-
-  children: [
-    Padding(
-    padding: const EdgeInsets.only(left:10, top:30),
-child: Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-    
-    children:[ 
-      
-      const Text ('Usuarios', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
-      const Text ('Administra a los usuarios del sistema'),
-      Padding(padding: const 
-      EdgeInsets.only(top:20),
-     child: Row( 
-        children: [
-      SizedBox(width: 310,
-      child: SearchBar(
-        hintText: ('Buscar Usuario'),
-        leading:  Icon (Icons.search),
-        onChanged: provider.setBusqueda,
-        trailing: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.filter_alt_rounded)),
-        ],
-        ),
-      ),
-       const SizedBox(width: 10,),
-      SizedBox(
-        width: 50,
-        height: 50,
-        child: ElevatedButton(
-          onPressed: _crear,
-          style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.zero,
-            backgroundColor: Color.fromARGB(255, 238, 181, 200),
-            foregroundColor: Colors.black,
+    return RefreshIndicator(
+      onRefresh: p.cargar,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 30, bottom: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Usuarios',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900),
+              ),
+              const Text('Administra a los usuarios del sistema'),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 310,
+                      child: SearchBar(
+                        hintText: 'Buscar Usuario',
+                        leading: const Icon(Icons.search),
+                        onChanged: p.setBusqueda,
+                        trailing: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.filter_alt_rounded),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () => _abrirFormulario(),
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          backgroundColor: const Color.fromARGB(255, 238, 181, 200),
+                          foregroundColor: Colors.black,
+                        ),
+                        child: const Icon(Icons.add),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _contenido(p),
+            ],
           ),
-          child: const Icon(Icons.add),
         ),
       ),
-        ]
-      )
-      ),
+    );
+  }
+}
 
-if (provider.cargando)
-  const Padding(
-    padding: EdgeInsets.only(top:40),
-    child: SizedBox(
-      width: 370,
-      child: Center(child: CircularProgressIndicator()),
-    ),
-  ),
+class _UsuarioForm extends StatefulWidget {
+  final UsuarioModel? usuario;
 
-if (provider.error != null)
-  Padding(
-    padding: const EdgeInsets.only(top:40),
-    child: SizedBox(
-      width: 370,
-      child: Column(
-        children: [
-          Text(provider.error!, textAlign: TextAlign.center, style: const TextStyle(color: Colors.red)),
-          const SizedBox(height: 12,),
-          FilledButton(onPressed: provider.cargar, child: const Text('Reintentar')),
-        ],
-      ),
-    ),
-  ),
+  const _UsuarioForm({this.usuario});
 
-if (!provider.cargando && provider.error == null && provider.usuarios.isEmpty)
-  const Padding(
-    padding: EdgeInsets.only(top:40),
-    child: SizedBox(
-      width: 370,
-      child: Center(child: Text('No hay usuarios')),
-    ),
-  ),
+  @override
+  State<_UsuarioForm> createState() => _UsuarioFormState();
+}
 
-if (!provider.cargando && provider.error == null)
-  ...provider.usuarios.map((u) => Padding(
-  padding: const EdgeInsets.only(top:20),
-  child: SizedBox(
-    width: 370,
-    height:70,
-    child: ElevatedButton(onPressed: () => _mostrarOpciones(u), 
-    child: Row(
-      children: [
-        const Icon(Icons.account_circle, size: 40, color:(Color.fromARGB(255, 245, 120, 162)),),
+class _UsuarioFormState extends State<_UsuarioForm> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nombreCtrl =
+      TextEditingController(text: widget.usuario?.nombre ?? '');
+  late final TextEditingController _apellidosCtrl =
+      TextEditingController(text: widget.usuario?.apellidos ?? '');
+  late final TextEditingController _loginCtrl =
+      TextEditingController(text: widget.usuario?.usuarioLogin ?? '');
+  late final TextEditingController _cedulaCtrl =
+      TextEditingController(text: widget.usuario?.cedula ?? '');
+  late final TextEditingController _passCtrl = TextEditingController();
+  late int _rol = (widget.usuario?.codRol == 1 || widget.usuario?.codRol == 2)
+      ? widget.usuario!.codRol
+      : 2;
 
-        
-        const SizedBox(width: 15,),
+  bool _guardando = false;
+  String? _error;
 
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text ('${u.nombre} ${u.apellidos}', style: const TextStyle(color:(Colors.black)),),
-            Text (_nombreRol(u.codRol, u.rolNombre), style: const TextStyle(color:(Colors.black),),), // CAMBIO ROL
-          ],
+  @override
+  void dispose() {
+    _nombreCtrl.dispose();
+    _apellidosCtrl.dispose();
+    _loginCtrl.dispose();
+    _cedulaCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
+  }
+
+  String? _requerido(String? valor) =>
+      (valor == null || valor.trim().isEmpty) ? 'Campo obligatorio' : null;
+
+  String? _contrasena(String? valor) {
+    if (widget.usuario != null) return null;
+    return (valor == null || valor.isEmpty) ? 'Campo obligatorio' : null;
+  }
+
+  Future<void> _guardar() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() {
+      _guardando = true;
+      _error = null;
+    });
+
+    final provider = context.read<UsuariosProvider>();
+    final original = widget.usuario;
+
+    final modelo = UsuarioModel(
+      codUsuario: original?.codUsuario ?? 0,
+      nombre: _nombreCtrl.text.trim(),
+      apellidos: _apellidosCtrl.text.trim(),
+      usuarioLogin: _loginCtrl.text.trim(),
+      cedula: _cedulaCtrl.text.trim(),
+      codRol: _rol,
+      rolNombre: _rol == 1 ? 'Admin' : 'Empleado',
+      estado: original?.estado ?? 1,
+      contrasena: _passCtrl.text.isEmpty ? null : _passCtrl.text,
+    );
+
+    final ok = original == null
+        ? await provider.crear(modelo)
+        : await provider.actualizar(modelo);
+
+    if (!mounted) return;
+
+    if (ok) {
+      Navigator.pop(context);
+    } else {
+      setState(() {
+        _guardando = false;
+        _error = provider.error ?? 'No se pudo guardar';
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final editando = widget.usuario != null;
+
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                editando ? 'Editar usuario' : 'Nuevo usuario',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              TextFormField(
+                controller: _nombreCtrl,
+                decoration: const InputDecoration(labelText: 'Nombre'),
+                validator: _requerido,
+              ),
+              TextFormField(
+                controller: _apellidosCtrl,
+                decoration: const InputDecoration(labelText: 'Apellidos'),
+                validator: _requerido,
+              ),
+              TextFormField(
+                controller: _loginCtrl,
+                decoration: const InputDecoration(labelText: 'Usuario'),
+                validator: _requerido,
+              ),
+              TextFormField(
+                controller: _cedulaCtrl,
+                decoration: const InputDecoration(labelText: 'Cédula'),
+                validator: _requerido,
+              ),
+              TextFormField(
+                controller: _passCtrl,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: editando ? 'Nueva contraseña (opcional)' : 'Contraseña',
+                ),
+                validator: _contrasena,
+              ),
+              DropdownButtonFormField<int>(
+                value: _rol,
+                decoration: const InputDecoration(labelText: 'Rol'),
+                items: const [
+                  DropdownMenuItem(value: 1, child: Text('Admin')),
+                  DropdownMenuItem(value: 2, child: Text('Empleado')),
+                ],
+                onChanged: (v) {
+                  if (v != null) setState(() => _rol = v);
+                },
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 8),
+                Text(_error!, style: const TextStyle(color: Colors.red)),
+              ],
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _guardando ? null : _guardar,
+                  child: Text(_guardando ? 'Guardando...' : 'Guardar'),
+                ),
+              ),
+            ],
+          ),
         ),
-
-        const Spacer(),
-
-        Text(u.estado == 1 ? 'Activo' : 'Inactivo', style: TextStyle(color: u.estado == 1 ? Colors.green : Colors.red)),
-
-        const Spacer(),
-         
-        const Icon(Icons.chevron_right)
-
-      ],
-    ),
-    
-  )
-  
-  ),
-)),
-
-    ]
-  ),
-    ),
-  ],
-
-),
-
-      );
+      ),
+    );
   }
 }
