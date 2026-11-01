@@ -12,6 +12,9 @@ class VentasScreen extends StatefulWidget {
 }
 
 class _VentasScreenState extends State<VentasScreen> {
+  static const _rosaClaro = Color.fromARGB(255, 238, 181, 200);
+  static const _rosaFuerte = Color.fromARGB(255, 245, 120, 162);
+
   final _scrollController = ScrollController();
 
   @override
@@ -37,6 +40,8 @@ class _VentasScreenState extends State<VentasScreen> {
   String _fecha(DateTime f) =>
       '${f.day.toString().padLeft(2, '0')}/${f.month.toString().padLeft(2, '0')}/${f.year}';
 
+  String _codigo(int cod) => 'N° ${cod.toString().padLeft(3, '0')}';
+
   String _nombrePeriodo(PeriodoVentas p) => switch (p) {
         PeriodoVentas.todas => 'Todas',
         PeriodoVentas.hoy => 'Hoy',
@@ -44,39 +49,36 @@ class _VentasScreenState extends State<VentasScreen> {
         PeriodoVentas.mes => 'Mes',
       };
 
-  void _mostrarDetalle(VentaModel venta) {
-    showModalBottomSheet(
+  void _mostrarFiltro() {
+    final provider = context.read<VentasProvider>();
+    showModalBottomSheet<void>(
       context: context,
-      isScrollControlled: true,
-      builder: (_) => Padding(
-        padding: const EdgeInsets.all(16),
+      builder: (ctx) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Venta #${venta.codVenta}',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('Fecha: ${_fecha(venta.fechaVenta)}'),
-            Text('Cliente: ${venta.codCliente}'),
-            Text('Usuario: ${venta.codUsuario}'),
-            const Divider(),
-            ...venta.detalles.map(
-              (d) => ListTile(
-                dense: true,
-                title: Text('Producto ${d.codigoProducto}'),
-                subtitle: Text(
-                  'Cantidad: ${d.cantidad} · C\$ ${d.precioUnitario.toStringAsFixed(2)}',
-                ),
-                trailing: Text('C\$ ${d.subtotal.toStringAsFixed(2)}'),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                'Filtrar por período',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
-            const Divider(),
-            Text(
-              'Total: C\$ ${venta.total.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ...PeriodoVentas.values.map(
+              (periodo) => ListTile(
+                leading: Icon(
+                  provider.periodo == periodo
+                      ? Icons.radio_button_checked
+                      : Icons.radio_button_unchecked,
+                  color: _rosaFuerte,
+                ),
+                title: Text(_nombrePeriodo(periodo)),
+                onTap: () {
+                  provider.setPeriodo(periodo);
+                  Navigator.pop(ctx);
+                },
+              ),
             ),
           ],
         ),
@@ -84,92 +86,208 @@ class _VentasScreenState extends State<VentasScreen> {
     );
   }
 
+  void _mostrarDetalle(VentaModel venta) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Venta ${_codigo(venta.codVenta)}',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text('Fecha: ${_fecha(venta.fechaVenta)}'),
+              Text('Cliente: ${venta.codCliente}'),
+              Text('Usuario: ${venta.codUsuario}'),
+              const Divider(),
+              ...venta.detalles.map(
+                (d) => ListTile(
+                  dense: true,
+                  title: Text('Producto ${d.codigoProducto}'),
+                  subtitle: Text(
+                    'Cantidad: ${d.cantidad} · C\$ ${d.precioUnitario.toStringAsFixed(2)}',
+                  ),
+                  trailing: Text('C\$ ${d.subtotal.toStringAsFixed(2)}'),
+                ),
+              ),
+              const Divider(),
+              Text(
+                'Total: C\$ ${venta.total.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _tarjeta(VentaModel v) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: SizedBox(
+        width: double.infinity,
+        height: 70,
+        child: ElevatedButton(
+          onPressed: () => _mostrarDetalle(v),
+          child: Row(
+            children: [
+              const Icon(Icons.receipt_long, size: 40, color: _rosaFuerte),
+              const SizedBox(width: 15),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Venta ${_codigo(v.codVenta)}',
+                      style: const TextStyle(color: Colors.black),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      _fecha(v.fechaVenta),
+                      style: const TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                'C\$ ${v.total.toStringAsFixed(2)}',
+                style: const TextStyle(color: Colors.green),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _contenido(VentasProvider p) {
+    if (p.cargando) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    if (p.error != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            children: [
+              Text(p.error!, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: p.cargar,
+                child: const Text('Reintentar'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (p.ventas.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 40),
+        child: SizedBox(
+          width: double.infinity,
+          child: Center(child: Text('No hay ventas para mostrar.')),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ...p.ventas.map(_tarjeta),
+        if (p.hayMas)
+          const Padding(
+            padding: EdgeInsets.all(16),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final p = context.watch<VentasProvider>();
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Ventas')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-            child: TextField(
-              onChanged: p.setBusqueda,
-              decoration: const InputDecoration(
-                hintText: 'Buscar por número o total',
-                prefixIcon: Icon(Icons.search),
+    return RefreshIndicator(
+      onRefresh: p.cargar,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10, top: 30, bottom: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Ventas',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900),
               ),
-            ),
-          ),
-          SizedBox(
-            height: 56,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              children: PeriodoVentas.values
-                  .map(
-                    (periodo) => Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ChoiceChip(
-                        label: Text(_nombrePeriodo(periodo)),
-                        selected: p.periodo == periodo,
-                        onSelected: (_) => p.setPeriodo(periodo),
+              const Text('Consulta el historial de ventas'),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: SearchBar(
+                        hintText: 'Buscar Venta',
+                        leading: const Icon(Icons.search),
+                        onChanged: p.setBusqueda,
                       ),
                     ),
-                  )
-                  .toList(),
-            ),
-          ),
-          Expanded(
-            child: p.cargando
-                ? const Center(child: CircularProgressIndicator())
-                : p.error != null
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(p.error!, textAlign: TextAlign.center),
-                              const SizedBox(height: 12),
-                              ElevatedButton(
-                                onPressed: p.cargar,
-                                child: const Text('Reintentar'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: p.cargar,
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.all(12),
-                          itemCount: p.ventas.length + (p.hayMas ? 1 : 0),
-                          itemBuilder: (_, i) {
-                            if (i == p.ventas.length) {
-                              return const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(child: CircularProgressIndicator()),
-                              );
-                            }
-                            final v = p.ventas[i];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: ListTile(
-                                onTap: () => _mostrarDetalle(v),
-                                title: Text('Venta #${v.codVenta}'),
-                                subtitle: Text(_fecha(v.fechaVenta)),
-                                trailing:
-                                    Text('C\$ ${v.total.toStringAsFixed(2)}'),
-                              ),
-                            );
-                          },
-                        ),
+                    const SizedBox(width: 10),
+                    IconButton(
+                      onPressed: _mostrarFiltro,
+                      icon: Icon(
+                        Icons.filter_alt_rounded,
+                        color: p.periodo == PeriodoVentas.todas
+                            ? null
+                            : _rosaFuerte,
                       ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Próximamente')),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Nueva venta'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _rosaClaro,
+                      foregroundColor: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+              _contenido(p),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
