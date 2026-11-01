@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../constants/api_constants.dart';
 import '../errors/app_exception.dart';
@@ -33,6 +34,7 @@ class ApiClient {
     if (token != null) {
       headers['Authorization'] = 'Bearer $token';
     }
+    debugPrint('PRUEBA $method $path -> token enviado: ${token != null}');
 
     final request = http.Request(method, uri)..headers.addAll(headers);
     if (body != null) {
@@ -51,10 +53,9 @@ class ApiClient {
       throw const NetworkException();
     }
 
-    if (response.statusCode == 401) {
-      throw const UnauthorizedException();
-    }
+    debugPrint('PRUEBA $method $path -> código ${response.statusCode}');
 
+    if (response.statusCode == 401) throw const UnauthorizedException();
     if (response.statusCode == 404) throw const NotFoundException();
 
     return _decode(response);
@@ -62,7 +63,10 @@ class ApiClient {
 
   dynamic _decode(http.Response response) {
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw ServerException('La petición falló', statusCode: response.statusCode);
+      throw ServerException(
+        response.body.isNotEmpty ? response.body : 'La petición falló',
+        statusCode: response.statusCode,
+      );
     }
 
     if (response.body.isEmpty) return null;
@@ -70,7 +74,7 @@ class ApiClient {
     try {
       return jsonDecode(response.body);
     } on FormatException {
-      throw const ParsingException();
+      return response.body;
     }
   }
 

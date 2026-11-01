@@ -1,4 +1,6 @@
 ﻿import 'package:apparel_movil/presentation/providers/auth_provider.dart';
+import 'package:apparel_movil/presentation/providers/clientes_provider.dart';
+import 'package:apparel_movil/presentation/providers/user_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +32,9 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => getIt<VentasProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<UsuariosProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<ClientesProvider>()),
+
       ],
       child: const ApparelApp(),
     ),
