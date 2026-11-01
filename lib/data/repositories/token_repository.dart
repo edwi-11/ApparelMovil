@@ -1,36 +1,31 @@
 import 'dart:convert';
-import 'package:apparel_movil/data/models/token_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:apparel_movil/data/models/token_model.dart';
 
 class TokenRepository {
+  static const _key = 'session';
 
-  final SharedPreferencesAsync _sharedPreferences = SharedPreferencesAsync();
-  final String _tokenKey = 'auth_token';
-  
-  
-  Future<TokenModel?> getToken() async {
-    final String? rawJson = await _sharedPreferences.getString(_tokenKey);
-    if (rawJson == null) return null;
-    try {
-      final Map<String, dynamic> jsonMap = jsonDecode(rawJson);
-      return TokenModel.fromJson(jsonMap);
-    } catch (e) {
-      await removeToken();
-    }
-    return null;
-  }
-
-
+  String? _cachedToken;
+  String? get currentToken => _cachedToken;
 
   Future<void> saveToken(TokenModel token) async {
-  final String jsonString = jsonEncode(token.toJson());
-  await _sharedPreferences.setString(_tokenKey, jsonString);
-
+    _cachedToken = token.token;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_key, jsonEncode(token.toJson()));
   }
 
-
-  Future<void> removeToken() async {
-  await _sharedPreferences.remove(_tokenKey);
+  Future<TokenModel?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_key);
+    if (raw == null) return null;
+    final token = TokenModel.fromJson(jsonDecode(raw));
+    _cachedToken = token.token;
+    return token;
   }
-  
+
+  Future<void> clearToken() async {
+    _cachedToken = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key);
+  }
 }

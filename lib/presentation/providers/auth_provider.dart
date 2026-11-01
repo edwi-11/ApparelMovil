@@ -28,9 +28,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final session = await _authService.login(username, password);
-      debugPrint('TOKEN: ${session.token}');
-      debugPrint('CODUSUARIO: ${session.codUsuario}');
+      await _authService.login(username, password);
       _authStatus = AuthStatus.authenticated;
 
     } on AppException catch (e) {

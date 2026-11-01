@@ -18,11 +18,11 @@ class ApiConstants {
   static String eliminarCliente(int id) => '/api/Cliente/$id';
 
   // Usuarios
-  static const String usuarios = '/api/Usuarios/ObtenerUsuarios';
+  static const String obtenerUsuarios = '/api/Usuarios/ObtenerUsuarios';
   static const String agregarUsuario = '/api/Usuarios/AgregarUsuario';
   static String verUsuario(int cod) => '/api/Usuarios/VerUsuario/$cod';
-  static String actualizarUsuario(int cod) =>'/api/Usuarios/ActualizarUsuario/$cod';
-  static String darBajaUsuario(int cod) =>'/api/Usuarios/DarBajaUsuario/$cod';
+  static String actualizarUsuario(int cod) => '/api/Usuarios/ActualizarUsuario/$cod';
+  static String darBajaUsuario(int cod) => '/api/Usuarios/DarBajaUsuario/$cod';
 
   // Productos
   static const String productos = '/api/Productos/ObtenerTodosProductos';
