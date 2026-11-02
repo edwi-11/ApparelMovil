@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:apparel_movil/core/di/injection.dart';
 import 'package:apparel_movil/presentation/providers/ventas_provider.dart';
 import 'package:apparel_movil/ui/routes/app_routes.dart';
+import 'package:apparel_movil/presentation/providers/logs_provider.dart';
 
 
 const String _apiUrlPorDefecto =
@@ -34,7 +35,7 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => getIt<AuthProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<UsuariosProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<ClientesProvider>()),
-
+        ChangeNotifierProvider(create: (_) => getIt<LogsProvider>()),
       ],
       child: const ApparelApp(),
     ),

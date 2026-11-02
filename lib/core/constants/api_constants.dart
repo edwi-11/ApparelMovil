@@ -34,6 +34,9 @@ class ApiConstants {
 
   // Ventas 
   static const String ventas = '/api/Ventas/ListarVentas';
+
+  // Logs
+  static const String logs = '/api/Logs';
  
   static const Duration timeoutDuration = Duration(seconds: 15);
 }

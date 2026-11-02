@@ -12,6 +12,9 @@ import 'package:apparel_movil/services/ventas_service.dart';
 import 'package:apparel_movil/data/repositories/clientes_repository.dart';
 import 'package:apparel_movil/presentation/providers/clientes_provider.dart';
 import 'package:apparel_movil/services/clientes_service.dart';
+import 'package:apparel_movil/data/repositories/logs_repository.dart';
+import 'package:apparel_movil/services/logs_service.dart';
+import 'package:apparel_movil/presentation/providers/logs_provider.dart';
 
 import 'package:apparel_movil/data/repositories/auth_repository.dart';
 
@@ -73,5 +76,16 @@ void setupDependencies() {
   );
   getIt.registerFactory<VentasProvider>(
     () => VentasProvider(getIt<VentasService>()),
+  );
+
+  // Logs
+  getIt.registerLazySingleton<LogsRepository>(
+    () => LogsRepository(getIt<ApiClient>()),
+  );
+  getIt.registerLazySingleton<LogsService>(
+    () => LogsService(getIt<LogsRepository>()),
+  );
+  getIt.registerFactory<LogsProvider>(
+    () => LogsProvider(getIt<LogsService>()),
   );
 }
