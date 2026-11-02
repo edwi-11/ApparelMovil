@@ -54,33 +54,37 @@ class _VentasScreenState extends State<VentasScreen> {
     showModalBottomSheet<void>(
       context: context,
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
                 'Filtrar por período',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-            ),
-            ...PeriodoVentas.values.map(
-              (periodo) => ListTile(
-                leading: Icon(
-                  provider.periodo == periodo
-                      ? Icons.radio_button_checked
-                      : Icons.radio_button_unchecked,
-                  color: _rosaFuerte,
-                ),
-                title: Text(_nombrePeriodo(periodo)),
-                onTap: () {
-                  provider.setPeriodo(periodo);
-                  Navigator.pop(ctx);
-                },
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: PeriodoVentas.values.map((periodo) {
+                  final activo = provider.periodo == periodo;
+                  return ElevatedButton(
+                    onPressed: () {
+                      provider.setPeriodo(periodo);
+                      Navigator.pop(ctx);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: activo ? _rosaFuerte : _rosaClaro,
+                      foregroundColor: activo ? Colors.white : Colors.black,
+                    ),
+                    child: Text(_nombrePeriodo(periodo)),
+                  );
+                }).toList(),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -263,25 +267,6 @@ class _VentasScreenState extends State<VentasScreen> {
                       ),
                     ),
                   ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Próximamente')),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('Nueva venta'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _rosaClaro,
-                      foregroundColor: Colors.black,
-                    ),
-                  ),
                 ),
               ),
               _contenido(p),
