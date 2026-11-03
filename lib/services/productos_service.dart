@@ -7,10 +7,8 @@ class ProductosService {
   ProductosService(this._repository);
 
   Future<List<ProductoModel>> obtenerProductos() => _repository.obtenerTodos();
-
+  Future<int> obtenerStock(int codigo) => _repository.obtenerStock(codigo);
   Future<void> crear(ProductoModel p) => _repository.crear(p);
-
   Future<void> actualizar(ProductoModel p) => _repository.actualizar(p);
-
   Future<void> eliminar(int codigo) => _repository.eliminar(codigo);
 }

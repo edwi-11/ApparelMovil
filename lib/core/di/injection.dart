@@ -94,12 +94,12 @@ void setupDependencies() {
 
   // Productos
   getIt.registerLazySingleton<ProductosRepository>(
-    () => ProductosRepository(getIt<ApiClient>()),
+  () => ProductosRepository(getIt<ApiClient>()),
   );
   getIt.registerLazySingleton<ProductosService>(
-    () => ProductosService(getIt<ProductosRepository>()),
+  () => ProductosService(getIt<ProductosRepository>()),
   );
   getIt.registerFactory<ProductosProvider>(
-    () => ProductosProvider(getIt<ProductosService>()),
-  );
+  () => ProductosProvider(getIt<ProductosService>()),
+  ) ;
 }

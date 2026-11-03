@@ -4,7 +4,7 @@ class ProductoModel {
   final String descripcion;
   final String marca;
   final double precio;
-  final int talla;
+  final String talla;
   final int estado;
   final int stock;
 
@@ -21,7 +21,26 @@ class ProductoModel {
 
   bool get agotado => stock <= 0;
 
-  String get estadoTexto => estado == 1 ? 'Activo' : 'Inactivo';
+  ProductoModel copyWith({
+    int? codigo,
+    String? nombre,
+    String? descripcion,
+    String? marca,
+    double? precio,
+    String? talla,
+    int? estado,
+    int? stock,
+  }) =>
+      ProductoModel(
+        codigo: codigo ?? this.codigo,
+        nombre: nombre ?? this.nombre,
+        descripcion: descripcion ?? this.descripcion,
+        marca: marca ?? this.marca,
+        precio: precio ?? this.precio,
+        talla: talla ?? this.talla,
+        estado: estado ?? this.estado,
+        stock: stock ?? this.stock,
+      );
 
   static ProductoModel fromJson(Map<String, dynamic> json) => ProductoModel(
         codigo: (json['codigoProducto'] as num?)?.toInt() ?? 0,
@@ -29,7 +48,7 @@ class ProductoModel {
         descripcion: json['descripcion']?.toString() ?? '',
         marca: json['marca']?.toString() ?? '',
         precio: (json['precio'] as num?)?.toDouble() ?? 0,
-        talla: (json['talla'] as num?)?.toInt() ?? 0,
+        talla: json['talla']?.toString() ?? '',
         estado: (json['estado'] as num?)?.toInt() ?? 0,
         stock: (json['stock'] as num?)?.toInt() ?? 0,
       );
@@ -38,10 +57,10 @@ class ProductoModel {
         'codigoProducto': codigo,
         'nombre': nombre,
         'descripcion': descripcion,
+        'marca': marca,
         'precio': precio,
         'talla': talla,
         'estado': estado,
         'stock': stock,
-        'marca': marca,
       };
 }

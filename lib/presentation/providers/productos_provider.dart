@@ -20,7 +20,6 @@ class ProductosProvider extends ChangeNotifier {
   String? get error => _error;
   FiltroStock get filtro => _filtro;
 
-  /// Lista ya filtrada por búsqueda y por stock.
   List<ProductoModel> get productos {
     final q = _busqueda.trim().toLowerCase();
     return _productos.where((p) {
@@ -38,13 +37,14 @@ class ProductosProvider extends ChangeNotifier {
     }).toList();
   }
 
-  String _mensaje(Object e) {
-    if (e is ServerException) {
-      if (e.statusCode == 403) return 'Solo un administrador puede hacer esto.';
-      return e.message;
-    }
-    if (e is AppException) return e.message;
-    return 'Ocurrió un error inesperado.';
+  Future<List<ProductoModel>> _conStock(List<ProductoModel> lista) {
+    return Future.wait(lista.map((p) async {
+      try {
+        return p.copyWith(stock: await _service.obtenerStock(p.codigo));
+      } catch (_) {
+        return p;
+      }
+    }));
   }
 
   Future<void> cargar() async {
@@ -53,85 +53,48 @@ class ProductosProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _productos = await _service.obtenerProductos();
-    } catch (e) {
-      _error = _mensaje(e);
+      _productos = await _conStock(await _service.obtenerProductos());
+    } on AppException catch (e) {
+      _error = e.message;
+    } catch (_) {
+      _error = 'Ocurrió un error inesperado.';
     }
 
     _cargando = false;
     notifyListeners();
   }
 
-  /// Vuelve a pedir la lista sin mostrar el indicador de carga.
   Future<void> _refrescar() async {
-    _productos = await _service.obtenerProductos();
+    try {
+      _productos = await _conStock(await _service.obtenerProductos());
+      _error = null;
+    } catch (_) {
+      // se conserva la lista anterior
+    }
     notifyListeners();
   }
 
-  /// Devuelve null si todo salió bien, o el mensaje de error.
-  Future<String?> crear({
-    required String nombre,
-    required String descripcion,
-    required String marca,
-    required String precio,
-    required String talla,
-    required String stock,
-    required int estado,
-  }) async {
+  Future<String?> _ejecutar(Future<void> Function() accion) async {
     try {
-      await _service.crear(ProductoModel(
-        codigo: 0,
-        nombre: nombre.trim(),
-        descripcion: descripcion.trim(),
-        marca: marca.trim(),
-        precio: double.parse(precio.trim().replaceAll(',', '.')),
-        talla: int.parse(talla.trim()),
-        estado: estado,
-        stock: int.parse(stock.trim()),
-      ));
+      await accion();
       await _refrescar();
       return null;
-    } catch (e) {
-      return _mensaje(e);
+    } on ServerException catch (e) {
+      return e.statusCode == 403
+          ? 'Solo un administrador puede hacer esto.'
+          : e.message;
+    } on AppException catch (e) {
+      return e.message;
+    } catch (_) {
+      return 'Ocurrió un error inesperado.';
     }
   }
 
-  Future<String?> actualizar(
-    ProductoModel original, {
-    required String nombre,
-    required String descripcion,
-    required String marca,
-    required String precio,
-    required String talla,
-    required int estado,
-  }) async {
-    try {
-      await _service.actualizar(ProductoModel(
-        codigo: original.codigo,
-        nombre: nombre.trim(),
-        descripcion: descripcion.trim(),
-        marca: marca.trim(),
-        precio: double.parse(precio.trim().replaceAll(',', '.')),
-        talla: int.parse(talla.trim()),
-        estado: estado,
-        stock: original.stock,
-      ));
-      await _refrescar();
-      return null;
-    } catch (e) {
-      return _mensaje(e);
-    }
-  }
-
-  Future<String?> eliminar(int codigo) async {
-    try {
-      await _service.eliminar(codigo);
-      await _refrescar();
-      return null;
-    } catch (e) {
-      return _mensaje(e);
-    }
-  }
+  Future<String?> crear(ProductoModel p) => _ejecutar(() => _service.crear(p));
+  Future<String?> actualizar(ProductoModel p) =>
+      _ejecutar(() => _service.actualizar(p));
+  Future<String?> eliminar(int codigo) =>
+      _ejecutar(() => _service.eliminar(codigo));
 
   void setBusqueda(String texto) {
     _busqueda = texto;
