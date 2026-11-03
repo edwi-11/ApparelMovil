@@ -256,35 +256,36 @@ class _ClientesScreenState extends State<ClientesScreen> {
                 padding: const EdgeInsets.only(top: 20),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 310,
+                    Expanded(
                       child: SearchBar(
                         hintText: 'Buscar Cliente',
                         leading: const Icon(Icons.search),
+                        trailing: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: const Icon(Icons.filter_alt_rounded),
+                          ),
+                        ],
                         onChanged: p.setBusqueda,
                       ),
                     ),
                     const SizedBox(width: 10),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.filter_alt_rounded),
+                    SizedBox(
+                      width: 56,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () => _abrirFormulario(),
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: EdgeInsets.zero,
+                          backgroundColor:
+                              const Color.fromARGB(255, 238, 181, 200),
+                          foregroundColor: Colors.black,
+                        ),
+                        child: const Icon(Icons.add),
+                      ),
                     ),
                   ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: SizedBox(
-                  width: 380,
-                  child: ElevatedButton.icon(
-                    onPressed: () => _abrirFormulario(),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Nuevo cliente'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 238, 181, 200),
-                      foregroundColor: Colors.black,
-                    ),
-                  ),
                 ),
               ),
               _contenido(p),
