@@ -21,6 +21,10 @@ class ProductoModel {
 
   bool get agotado => stock <= 0;
 
+  bool get activo => estado == 1;
+
+  String get estadoTexto => activo ? 'Activo' : 'Inactivo';
+
   ProductoModel copyWith({
     int? codigo,
     String? nombre,
