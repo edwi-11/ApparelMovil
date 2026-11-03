@@ -350,7 +350,7 @@ class _ProductoFormState extends State<_ProductoForm> {
       descripcion: _descripcionCtrl.text.trim(),
       marca: _marcaCtrl.text.trim(),
       precio: _leerPrecio()!,
-      talla: int.parse(_tallaCtrl.text.trim()),
+      talla: _tallaCtrl.text.trim(),
       estado: _estado,
       stock: original == null ? int.parse(_stockCtrl.text.trim()) : original.stock,
     );
