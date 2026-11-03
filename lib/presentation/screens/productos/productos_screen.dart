@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:apparel_movil/data/models/productos_models.dart';
 import 'package:apparel_movil/presentation/providers/productos_provider.dart';
 
+const _rosa = Color.fromARGB(255, 238, 181, 200);
+const _rosaIcono = Color.fromARGB(255, 245, 120, 162);
+
 class ProductosScreen extends StatefulWidget {
   const ProductosScreen({super.key});
 
@@ -11,9 +14,6 @@ class ProductosScreen extends StatefulWidget {
 }
 
 class _ProductosScreenState extends State<ProductosScreen> {
-  static const _rosaClaro = Color.fromARGB(255, 238, 181, 200);
-  static const _rosaFuerte = Color.fromARGB(255, 245, 120, 162);
-
   @override
   void initState() {
     super.initState();
@@ -22,54 +22,8 @@ class _ProductosScreenState extends State<ProductosScreen> {
     });
   }
 
-  String _precio(double v) => 'C\$ ${v.toStringAsFixed(2)}';
-
-  String _nombreFiltro(FiltroStock f) => switch (f) {
-        FiltroStock.todos => 'Todos',
-        FiltroStock.conStock => 'Con stock',
-        FiltroStock.agotados => 'Agotados',
-      };
-
-  void _mostrarFiltro() {
-    final provider = context.read<ProductosProvider>();
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Filtrar por disponibilidad',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: FiltroStock.values.map((f) {
-                  final activo = provider.filtro == f;
-                  return ElevatedButton(
-                    onPressed: () {
-                      provider.setFiltro(f);
-                      Navigator.pop(ctx);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: activo ? _rosaFuerte : _rosaClaro,
-                      foregroundColor: activo ? Colors.white : Colors.black,
-                    ),
-                    child: Text(_nombreFiltro(f)),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  String _codigo(int c) => 'N° ${c.toString().padLeft(3, '0')}';
+  String _precio(double p) => 'C\$ ${p.toStringAsFixed(2)}';
 
   Future<void> _abrirFormulario({ProductoModel? producto}) async {
     await showModalBottomSheet<void>(
@@ -82,12 +36,12 @@ class _ProductosScreenState extends State<ProductosScreen> {
     );
   }
 
-  Future<void> _confirmarEliminar(ProductoModel producto) async {
+  Future<void> _confirmarEliminar(ProductoModel p) async {
     final confirmado = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Eliminar producto'),
-        content: Text('¿Seguro que quieres eliminar ${producto.nombre}?'),
+        content: Text('¿Seguro que quieres eliminar "${p.nombre}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -103,77 +57,62 @@ class _ProductosScreenState extends State<ProductosScreen> {
 
     if (confirmado != true || !mounted) return;
 
-    final error =
-        await context.read<ProductosProvider>().eliminar(producto.codigo);
-
+    final error = await context.read<ProductosProvider>().eliminar(p.codigo);
     if (error != null && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
     }
   }
 
-  Widget _fila(String etiqueta, String valor) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Text('$etiqueta: $valor'),
-    );
-  }
-
   void _mostrarDetalle(ProductoModel p) {
-    showModalBottomSheet<void>(
+    showModalBottomSheet(
       context: context,
-      isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                p.nombre,
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(p.descripcion),
-              const Divider(),
-              _fila('Código', '${p.codigo}'),
-              _fila('Marca', p.marca),
-              _fila('Talla', '${p.talla}'),
-              _fila('Precio', _precio(p.precio)),
-              _fila('Stock', p.agotado ? 'Agotado' : '${p.stock} unidades'),
-              _fila('Estado', p.estadoTexto),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _abrirFormulario(producto: p);
-                      },
-                      icon: const Icon(Icons.edit),
-                      label: const Text('Editar'),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(p.nombre,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Producto ${_codigo(p.codigo)}'),
+            Text('Descripción: ${p.descripcion}'),
+            Text('Marca: ${p.marca}'),
+            Text('Talla: ${p.talla}'),
+            Text('Precio: ${_precio(p.precio)}'),
+            Text('Stock: ${p.agotado ? 'Agotado' : p.stock}'),
+            Text('Estado: ${p.estadoTexto}'),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _abrirFormulario(producto: p);
+                    },
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Editar'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      _confirmarEliminar(p);
+                    },
+                    icon: const Icon(Icons.delete),
+                    label: const Text('Eliminar'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _rosa,
+                      foregroundColor: Colors.black,
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        _confirmarEliminar(p);
-                      },
-                      icon: const Icon(Icons.delete),
-                      label: const Text('Eliminar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _rosaClaro,
-                        foregroundColor: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -183,31 +122,25 @@ class _ProductosScreenState extends State<ProductosScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: 20),
       child: SizedBox(
-        width: double.infinity,
+        width: 370,
         height: 70,
         child: ElevatedButton(
           onPressed: () => _mostrarDetalle(p),
           child: Row(
             children: [
-              const Icon(Icons.inventory_2, size: 40, color: _rosaFuerte),
+              const Icon(Icons.checkroom, size: 40, color: _rosaIcono),
               const SizedBox(width: 15),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      p.nombre,
-                      style: const TextStyle(color: Colors.black),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      '${p.marca} · Talla ${p.talla}',
-                      style: const TextStyle(color: Colors.black),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    Text(p.nombre,
+                        style: const TextStyle(color: Colors.black),
+                        overflow: TextOverflow.ellipsis),
+                    Text('${p.marca} · Talla ${p.talla}',
+                        style: const TextStyle(color: Colors.black),
+                        overflow: TextOverflow.ellipsis),
                   ],
                 ),
               ),
@@ -215,15 +148,12 @@ class _ProductosScreenState extends State<ProductosScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    _precio(p.precio),
-                    style: const TextStyle(color: Colors.green),
-                  ),
+                  Text(_precio(p.precio),
+                      style: const TextStyle(color: Colors.green)),
                   Text(
                     p.agotado ? 'Agotado' : 'Stock: ${p.stock}',
                     style: TextStyle(
-                      color: p.agotado ? Colors.red : Colors.black,
-                      fontSize: 12,
+                      color: p.agotado ? Colors.red : Colors.black54,
                     ),
                   ),
                 ],
@@ -257,18 +187,14 @@ class _ProductosScreenState extends State<ProductosScreen> {
             children: [
               Text(p.error!, textAlign: TextAlign.center),
               const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: p.cargar,
-                child: const Text('Reintentar'),
-              ),
+              ElevatedButton(onPressed: p.cargar, child: const Text('Reintentar')),
             ],
           ),
         ),
       );
     }
 
-    final lista = p.productos;
-    if (lista.isEmpty) {
+    if (p.productos.isEmpty) {
       return const Padding(
         padding: EdgeInsets.only(top: 40),
         child: SizedBox(
@@ -278,7 +204,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
       );
     }
 
-    return Column(children: lista.map(_tarjeta).toList());
+    return Column(children: p.productos.map(_tarjeta).toList());
   }
 
   @override
@@ -294,10 +220,8 @@ class _ProductosScreenState extends State<ProductosScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Inventario',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900),
-              ),
+              const Text('Inventario',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w900)),
               const Text('Gestiona los productos de tu inventario'),
               Padding(
                 padding: const EdgeInsets.only(top: 20),
@@ -305,20 +229,26 @@ class _ProductosScreenState extends State<ProductosScreen> {
                   children: [
                     Expanded(
                       child: SearchBar(
-                        hintText: 'Buscar Producto',
+                        hintText: 'Buscar producto',
                         leading: const Icon(Icons.search),
+                        onChanged: p.setBusqueda,
                         trailing: [
-                          IconButton(
-                            onPressed: _mostrarFiltro,
-                            icon: Icon(
-                              Icons.filter_alt_rounded,
-                              color: p.filtro == FiltroStock.todos
-                                  ? null
-                                  : _rosaFuerte,
-                            ),
+                          PopupMenuButton<FiltroStock>(
+                            icon: const Icon(Icons.filter_alt_rounded),
+                            initialValue: p.filtro,
+                            onSelected: p.setFiltro,
+                            itemBuilder: (_) => const [
+                              PopupMenuItem(
+                                  value: FiltroStock.todos, child: Text('Todos')),
+                              PopupMenuItem(
+                                  value: FiltroStock.conStock,
+                                  child: Text('Con stock')),
+                              PopupMenuItem(
+                                  value: FiltroStock.agotados,
+                                  child: Text('Agotados')),
+                            ],
                           ),
                         ],
-                        onChanged: p.setBusqueda,
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -330,7 +260,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
                         style: ElevatedButton.styleFrom(
                           shape: const CircleBorder(),
                           padding: EdgeInsets.zero,
-                          backgroundColor: _rosaClaro,
+                          backgroundColor: _rosa,
                           foregroundColor: Colors.black,
                         ),
                         child: const Icon(Icons.add),
@@ -369,9 +299,9 @@ class _ProductoFormState extends State<_ProductoForm> {
       text: widget.producto == null ? '' : widget.producto!.precio.toString());
   late final TextEditingController _tallaCtrl = TextEditingController(
       text: widget.producto == null ? '' : widget.producto!.talla.toString());
-  late final TextEditingController _stockCtrl = TextEditingController();
+  final _stockCtrl = TextEditingController();
+  late int _estado = widget.producto?.estado ?? 1;
 
-  late int _estado = widget.producto?.estado == 2 ? 2 : 1;
   bool _guardando = false;
   String? _error;
 
@@ -386,19 +316,21 @@ class _ProductoFormState extends State<_ProductoForm> {
     super.dispose();
   }
 
-  String? _requerido(String? valor) =>
-      (valor == null || valor.trim().isEmpty) ? 'Campo obligatorio' : null;
+  String? _requerido(String? v) =>
+      (v == null || v.trim().isEmpty) ? 'Campo obligatorio' : null;
 
-  String? _precio(String? valor) {
-    if (_requerido(valor) != null) return 'Campo obligatorio';
-    final n = double.tryParse(valor!.trim().replaceAll(',', '.'));
-    return (n == null || n <= 0) ? 'Debe ser un número mayor que 0' : null;
+  double? _leerPrecio() => double.tryParse(_precioCtrl.text.trim().replaceAll(',', '.'));
+
+  String? _validarPrecio(String? v) {
+    if (_requerido(v) != null) return 'Campo obligatorio';
+    final n = _leerPrecio();
+    return (n == null || n <= 0) ? 'Precio inválido' : null;
   }
 
-  String? _entero(String? valor) {
-    if (_requerido(valor) != null) return 'Campo obligatorio';
-    final n = int.tryParse(valor!.trim());
-    return (n == null || n <= 0) ? 'Debe ser un entero mayor que 0' : null;
+  String? _validarEntero(String? v) {
+    if (_requerido(v) != null) return 'Campo obligatorio';
+    final n = int.tryParse(v!.trim());
+    return (n == null || n <= 0) ? 'Debe ser mayor que 0' : null;
   }
 
   Future<void> _guardar() async {
@@ -412,25 +344,20 @@ class _ProductoFormState extends State<_ProductoForm> {
     final provider = context.read<ProductosProvider>();
     final original = widget.producto;
 
+    final producto = ProductoModel(
+      codigo: original?.codigo ?? 0,
+      nombre: _nombreCtrl.text.trim(),
+      descripcion: _descripcionCtrl.text.trim(),
+      marca: _marcaCtrl.text.trim(),
+      precio: _leerPrecio()!,
+      talla: int.parse(_tallaCtrl.text.trim()),
+      estado: _estado,
+      stock: original == null ? int.parse(_stockCtrl.text.trim()) : original.stock,
+    );
+
     final error = original == null
-        ? await provider.crear(
-            nombre: _nombreCtrl.text,
-            descripcion: _descripcionCtrl.text,
-            marca: _marcaCtrl.text,
-            precio: _precioCtrl.text,
-            talla: _tallaCtrl.text,
-            stock: _stockCtrl.text,
-            estado: _estado,
-          )
-        : await provider.actualizar(
-            original,
-            nombre: _nombreCtrl.text,
-            descripcion: _descripcionCtrl.text,
-            marca: _marcaCtrl.text,
-            precio: _precioCtrl.text,
-            talla: _tallaCtrl.text,
-            estado: _estado,
-          );
+        ? await provider.crear(producto)
+        : await provider.actualizar(producto);
 
     if (!mounted) return;
 
@@ -457,10 +384,8 @@ class _ProductoFormState extends State<_ProductoForm> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                editando ? 'Editar producto' : 'Nuevo producto',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              Text(editando ? 'Editar producto' : 'Nuevo producto',
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               TextFormField(
                 controller: _nombreCtrl,
                 decoration: const InputDecoration(labelText: 'Nombre'),
@@ -478,23 +403,22 @@ class _ProductoFormState extends State<_ProductoForm> {
               ),
               TextFormField(
                 controller: _precioCtrl,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(labelText: 'Precio'),
-                validator: _precio,
+                validator: _validarPrecio,
               ),
               TextFormField(
                 controller: _tallaCtrl,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Talla'),
-                validator: _entero,
+                validator: _validarEntero,
               ),
               if (!editando)
                 TextFormField(
                   controller: _stockCtrl,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(labelText: 'Stock inicial'),
-                  validator: _entero,
+                  validator: _validarEntero,
                 ),
               DropdownButtonFormField<int>(
                 value: _estado,
